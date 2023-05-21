@@ -30,21 +30,13 @@ import (
 var (
 	strictPolicy bool
 	keyPass      string
+	keyType      KeyType
 
 	newCmd = &cobra.Command{
 		Use:   "new",
-		Short: "A brief description of your command",
-		Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+		Short: "Create a new certificate authority.",
+		Long:  "Create a new certificate authority.",
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(settings.Name) > 0 {
-				cobra.CheckErr(fmt.Errorf("'%s' is already a certificate authority", folderPath))
-			}
-
 			if workingDirectory != folderPath {
 				if _, err := os.Stat(folderPath); os.IsNotExist(err) {
 					info("Creating certificate authority folder...")
@@ -162,6 +154,12 @@ subordinate certificate authority to sign certificates within this authority...`
 			if s, _ := cmd.Flags().GetBool("subordinate"); s {
 				ensureAuthorityDirectory()
 			}
+
+			if r, _ := cmd.Flags().GetBool("root"); r {
+				if len(settings.Name) > 0 {
+					cobra.CheckErr(fmt.Errorf("'%s' is already a certificate authority", folderPath))
+				}
+			}
 		},
 		PostRun: func(cmd *cobra.Command, args []string) {
 			ensureWorkingDirectoryAndExit()
@@ -191,6 +189,8 @@ func init() {
 	newCmd.MarkFlagsMutuallyExclusive("public", "strict")
 
 	newCmd.Flags().Bool("scm", false, "include generation of SCM files")
+
+	newCmd.Flags().Var(&keyType, "keytype", `algorithm to use for private key (allowed "edwards", "elliptic", "rsa" default "edwards")`)
 }
 
 func cnf_ca() {
@@ -471,15 +471,64 @@ func new_private_key(filePath string) {
 
 	keyPass = string(password)
 
-	param := []string{
-		"genpkey",
-		"-algorithm ed25519",
-		fmt.Sprintf("-out %s", filePath),
-		"-aes-256-cfb",
-		fmt.Sprintf("-pass pass:%s", keyPass),
-	}
+	var param []string
 
-	executeExternalProgram("openssl", param...)
+	fmt.Println("")
+	switch keyType {
+	case elliptic:
+		param = []string{
+			"ecparam",
+			"-name secp521r1",
+			"-genkey",
+			"-noout",
+			fmt.Sprintf("-out %s", filePath),
+		}
+
+		fmt.Println(param)
+		executeExternalProgram("openssl", param...)
+
+		param = []string{
+			"ec",
+			"-aes-256-cfb",
+			fmt.Sprintf("-in %s", filePath),
+			fmt.Sprintf("-out %s.tmp", filePath),
+			fmt.Sprintf("-passout pass:%s", keyPass),
+		}
+
+		fmt.Println(param)
+		executeExternalProgram("openssl", param...)
+
+		os.Remove(filePath)
+		os.Rename(fmt.Sprintf("%s.tmp", filePath), filePath)
+
+	case rsa:
+		param = []string{
+			"genrsa",
+			fmt.Sprintf("-out %s", filePath),
+			"-verbose",
+			"-aes-256-cfb",
+			fmt.Sprintf("-passout pass:%s", keyPass),
+		}
+
+		if settings.Type == "root" {
+			param = append(param, "4096")
+		} else {
+			param = append(param, "2048")
+		}
+
+		executeExternalProgram("openssl", param...)
+
+	default:
+		param = []string{
+			"genpkey",
+			"-algorithm ed25519",
+			fmt.Sprintf("-out %s", filePath),
+			"-aes-256-cfb",
+			fmt.Sprintf("-pass pass:%s", keyPass),
+		}
+
+		executeExternalProgram("openssl", param...)
+	}
 
 	fmt.Printf("\n    ...    %s\n", filePath)
 }

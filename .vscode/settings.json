@@ -5,12 +5,15 @@
     "contoso",
     "crlnumber",
     "dcjulian",
+    "ecparam",
     "genpkey",
     "goarch",
     "infiles",
     "keyid",
     "ldflags",
     "lname",
+    "noout",
+    "secp",
     "subca",
     "szostok"
   ]

@@ -1,5 +1,5 @@
-.ca.yml
 ca.cnf
+ca.yml
 certs/
 csr/
 db/
