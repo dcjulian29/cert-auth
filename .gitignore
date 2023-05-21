@@ -1,3 +1,8 @@
-.cert-auth.yml
-
+.ca.yml
+ca.cnf
+certs/
+csr/
+db/
 dist/
+private/
+test_ca/
