@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -68,7 +69,7 @@ func Execute() {
 func init() {
 	pwd, _ := os.Getwd()
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "specify configuration file")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "specify authority configuration file")
 	rootCmd.PersistentFlags().StringVar(&folderPath, "path", pwd, "path to certificate authority folder")
 
 	cobra.OnInitialize(initConfig)
@@ -76,24 +77,19 @@ func init() {
 
 func initConfig() {
 	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		pwd, err := os.Getwd()
-		cobra.CheckErr(err)
-
-		viper.AddConfigPath(pwd)
-		viper.SetConfigType("yml")
-		viper.SetConfigName(".cert-auth")
+		folderPath = filepath.Dir(cfgFile)
 	}
 
-	viper.AutomaticEnv()
+	viper.AddConfigPath(folderPath)
+	viper.SetConfigType("yml")
+	viper.SetConfigName("ca")
 
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		fmt.Fprintf(os.Stderr, "\033[1;36mUsing config file: %s\033[0m\n", viper.ConfigFileUsed())
 	}
 
 	settings.Type = viper.GetString("type")
-	settings.Public = viper.GetBool("public")
+	settings.Public = viper.GetBool("public_access")
 	settings.Name = viper.GetString("name")
 	settings.Domain = viper.GetString("domain")
 	settings.Country = viper.GetString("country")
@@ -107,16 +103,24 @@ func ensureAuthorityDirectory() {
 	if workingDirectory != folderPath {
 		if err := os.Chdir(folderPath); err != nil {
 			cobra.CheckErr(err)
-			os.Exit(1)
 		}
 	}
+}
+
+func ensureDir(dirPath string) error {
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(dirPath, 0755); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func ensureWorkingDirectoryAndExit() {
 	if workingDirectory != folderPath {
 		if err := os.Chdir(workingDirectory); err != nil {
 			cobra.CheckErr(err)
-			os.Exit(1)
 		}
 	}
 
@@ -130,7 +134,19 @@ func executeExternalProgram(program string, params ...string) {
 	cmd.Stdout = os.Stdout
 
 	if err := cmd.Run(); err != nil {
-		cobra.CheckErr(err)
 		ensureWorkingDirectoryAndExit()
 	}
+}
+
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	return !info.IsDir()
+}
+
+func info(message string) {
+	fmt.Printf("\n\033[1;36m%s\033[0m\n", message)
 }
