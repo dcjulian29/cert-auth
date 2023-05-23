@@ -21,9 +21,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"path"
+	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"golang.org/x/term"
 )
 
@@ -31,18 +32,46 @@ var (
 	strictPolicy bool
 	keyPass      string
 	keyType      KeyType
+	rootAuth     CertAuth
 
 	newCmd = &cobra.Command{
 		Use:   "new",
 		Short: "Create a new certificate authority.",
 		Long:  "Create a new certificate authority.",
+		PreRun: func(cmd *cobra.Command, args []string) {
+			if s, _ := cmd.Flags().GetBool("subordinate"); s {
+				if len(settings.Name) == 0 {
+					cobra.CheckErr(fmt.Errorf("'%s' is not a root certificate authority", folderPath))
+				}
+			} else {
+				if len(settings.Name) > 0 {
+					cobra.CheckErr(fmt.Errorf("'%s' is already a certificate authority", folderPath))
+				}
+			}
+		},
+		PostRun: func(cmd *cobra.Command, args []string) {
+			ensureWorkingDirectoryAndExit()
+		},
 		Run: func(cmd *cobra.Command, args []string) {
+			if s, _ := cmd.Flags().GetBool("subordinate"); s {
+				name, _ := cmd.Flags().GetString("name")
+
+				if !cmd.Flags().Lookup("name").Changed {
+					name = "subca"
+				}
+
+				folderPath = path.Join(folderPath, name)
+
+				if fileExists(fmt.Sprintf("./%s/ca.yml", name)) {
+					cobra.CheckErr(fmt.Errorf("'%s' is already a subordinate authority", name))
+				}
+			}
+
 			if workingDirectory != folderPath {
 				if _, err := os.Stat(folderPath); os.IsNotExist(err) {
 					info("Creating certificate authority folder...")
-					if err := os.MkdirAll(folderPath, 0755); err != nil {
-						cobra.CheckErr(err)
-					}
+
+					cobra.CheckErr(ensureDir(folderPath))
 				}
 
 				ensureAuthorityDirectory()
@@ -58,30 +87,51 @@ var (
 
 			strictPolicy, _ = cmd.Flags().GetBool("strict")
 
-			if r, _ := cmd.Flags().GetBool("root"); r {
-				settings.Type = "root"
+			if s, _ := cmd.Flags().GetBool("subordinate"); s {
+				rootAuth = settings
+				settings = CertAuth{Type: "subordinate"}
 			} else {
-				settings.Type = "subordinate"
+				settings.Type = "root"
 			}
 
 			settings.Public, _ = cmd.Flags().GetBool("public")
-			settings.Name, _ = cmd.Flags().GetString("name")
-			settings.Domain, _ = cmd.Flags().GetString("domain")
-			settings.Country, _ = cmd.Flags().GetString("country")
-			settings.Organization, _ = cmd.Flags().GetString("org")
-			settings.CommonName, _ = cmd.Flags().GetString("cn")
+
+			if s, _ := cmd.Flags().GetBool("subordinate"); s && !cmd.Flags().Lookup("name").Changed {
+				settings.Name = "subca"
+			} else {
+				if cmd.Flags().Lookup("name").Changed {
+					settings.Name, _ = cmd.Flags().GetString("name")
+				} else {
+					settings.Name = "rootca"
+				}
+			}
+
+			if cmd.Flags().Lookup("cn").Changed {
+				settings.CommonName, _ = cmd.Flags().GetString("cn")
+			} else {
+				settings.CommonName = settings.Name
+			}
+
+			if s, _ := cmd.Flags().GetBool("subordinate"); s && !cmd.Flags().Lookup("domain").Changed {
+				settings.Domain = rootAuth.Domain
+			} else {
+				settings.Domain, _ = cmd.Flags().GetString("domain")
+			}
+
+			if s, _ := cmd.Flags().GetBool("subordinate"); s && !cmd.Flags().Lookup("country").Changed {
+				settings.Country = rootAuth.Country
+			} else {
+				settings.Country, _ = cmd.Flags().GetString("country")
+			}
+
+			if s, _ := cmd.Flags().GetBool("subordinate"); s && !cmd.Flags().Lookup("org").Changed {
+				settings.Organization = rootAuth.Organization
+			} else {
+				settings.Organization, _ = cmd.Flags().GetString("org")
+			}
+
 			settings.OCSP, _ = cmd.Flags().GetBool("ocsp")
 			settings.TimeStamp, _ = cmd.Flags().GetBool("timestamp")
-
-			viper.Set("common_name", settings.CommonName)
-			viper.Set("country", settings.Country)
-			viper.Set("domain", settings.Domain)
-			viper.Set("name", settings.Name)
-			viper.Set("ocsp", settings.OCSP)
-			viper.Set("organization", settings.Organization)
-			viper.Set("public_access", settings.Public)
-			viper.Set("timestamp", settings.TimeStamp)
-			viper.Set("type", settings.Type)
 
 			bytes := make([]byte, 15)
 			_, err := rand.Read(bytes)
@@ -93,11 +143,11 @@ var (
 
 			cnf_ca()
 
-			info("Generating the root certificate private key...")
+			info("Generating the certificate authority private key...")
 
 			new_private_key("private/ca.key")
 
-			info("Generating the root certificate request...")
+			info("Generating the certificate authority request...")
 
 			executeExternalProgram("openssl", []string{
 				"req",
@@ -111,21 +161,110 @@ var (
 
 			fmt.Printf("    ...    %s\n", "csr/ca.csr")
 
-			info("Generating the root certificate for this authority...")
+			var serial string
 
-			executeExternalProgram("openssl", []string{
-				"ca",
-				"-selfsign",
-				"-config ca.cnf",
-				"-in csr/ca.csr",
-				"-out certs/ca.pem",
-				"-extensions ca_ext",
-				fmt.Sprintf("-passin pass:%s", keyPass),
-			}...)
+			if settings.Type == "root" {
+				info("Generating the certificate for this authority...")
+
+				executeExternalProgram("openssl", []string{
+					"ca",
+					"-selfsign",
+					"-config ca.cnf",
+					"-in csr/ca.csr",
+					"-out certs/ca.pem",
+					"-extensions ca_ext",
+					fmt.Sprintf("-passin pass:%s", keyPass),
+				}...)
+
+				serial = executeExternalProgramCapture("openssl", []string{
+					"x509",
+					"-noout",
+					"-in ./certs/ca.pem",
+					"-serial",
+				}...)
+
+				serial = strings.TrimRight(strings.Replace(serial, "serial=", "", 1), "\r\n")
+				settings.Serial = serial
+			} else {
+				info("Using root authority to sign the certificate for this authority...")
+
+				fmt.Printf("\033[1;35mEnter pass phrase for %s:\033[0m ", "../private/ca.key")
+
+				password, err := term.ReadPassword(int(os.Stdin.Fd()))
+				cobra.CheckErr(err)
+				fmt.Println("")
+
+				authPass := string(password)
+
+				if err := os.Chdir("../"); err != nil {
+					cobra.CheckErr(err)
+				}
+
+				executeExternalProgram("openssl", []string{
+					"ca",
+					"-batch",
+					"-config ca.cnf",
+					"-extensions subca_ext",
+					"-days 1825",
+					fmt.Sprintf("-passin pass:%s", authPass),
+					fmt.Sprintf("-out ./%s/certs/ca.pem", settings.Name),
+					fmt.Sprintf("-in ./%s/csr/ca.csr", settings.Name),
+				}...)
+
+				serial = executeExternalProgramCapture("openssl", []string{
+					"x509",
+					"-noout",
+					fmt.Sprintf("-in ./%s/certs/ca.pem", settings.Name),
+					"-serial",
+				}...)
+
+				serial = strings.TrimRight(strings.Replace(serial, "serial=", "", 1), "\r\n")
+				settings.Serial = serial
+
+				subordinate := Subordinate{Name: settings.Name, Id: serial}
+
+				var newsub []Subordinate
+				found := false
+
+				for _, s := range rootAuth.Subordinates {
+					if s.Name == subordinate.Name {
+						newsub = append(newsub, subordinate)
+						found = true
+
+						// TODO: If one was already issued, the previous cert should be revoked.
+					} else {
+						newsub = append(newsub, s)
+					}
+				}
+
+				if !found {
+					newsub = append(newsub, subordinate)
+				}
+
+				rootAuth.Subordinates = newsub
+
+				saveConfig("ca.yml", rootAuth) // root CA configuration
+
+				info("Writing subordinate authority chain certificate...")
+
+				root, err := os.ReadFile("./certs/ca.pem")
+				cobra.CheckErr(err)
+
+				sub, err := os.ReadFile(fmt.Sprintf("./%s/certs/ca.pem", settings.Name))
+				cobra.CheckErr(err)
+
+				chain := fmt.Sprintf("%s\n%s\n", string(root), string(sub))
+				touchFile(fmt.Sprintf("./%s/certs/ca-chain.pem", settings.Name), []byte(chain))
+
+				if err := os.Chdir(folderPath); err != nil {
+					cobra.CheckErr(err)
+				}
+			}
 
 			info("Writing authority configuration file...")
 
-			viper.WriteConfigAs("ca.yml")
+			saveConfig("ca.yml", settings)
+
 			fmt.Printf("    ...    %s\n", "ca.yml")
 
 			if settings.OCSP {
@@ -136,33 +275,28 @@ var (
 				timestamp_setup()
 			}
 
-			if s, _ := cmd.Flags().GetBool("scm"); s {
-				info("Adding source control supporting files...")
-				git_ignore()
-				git_attributes()
-				editor_config()
-			}
+			switch settings.Type {
+			case "root":
+				if s, _ := cmd.Flags().GetBool("scm"); s {
+					info("Adding source control supporting files...")
+					git_ignore()
+					git_attributes()
+					editor_config()
+				}
 
-			info(`Creation of a root certificate authority complete...
+				info(`Creation of a root certificate authority complete...
 
 ~~~~~
 A root certificate authority should only have subordinate authorities and not
 used to create server or user certificates so you should create at least one
 subordinate certificate authority to sign certificates within this authority...`)
-		},
-		PreRun: func(cmd *cobra.Command, args []string) {
-			if s, _ := cmd.Flags().GetBool("subordinate"); s {
-				ensureAuthorityDirectory()
-			}
 
-			if r, _ := cmd.Flags().GetBool("root"); r {
-				if len(settings.Name) > 0 {
-					cobra.CheckErr(fmt.Errorf("'%s' is already a certificate authority", folderPath))
-				}
+			case "subordinate":
+				info(`Creation of a subordinate certificate authority complete...
+
+~~~~~
+This subordinate authority can only be used to sign certificates within this authority...`)
 			}
-		},
-		PostRun: func(cmd *cobra.Command, args []string) {
-			ensureWorkingDirectoryAndExit()
 		},
 	}
 )
@@ -175,10 +309,10 @@ func init() {
 
 	newCmd.MarkFlagsMutuallyExclusive("root", "subordinate")
 
-	newCmd.Flags().String("cn", "authority", "common name for the authority")
+	newCmd.Flags().String("cn", "", "common name for the authority")
 	newCmd.Flags().StringP("country", "c", "US", "country where the authority resides legally")
 	newCmd.Flags().StringP("domain", "d", "contoso.local", "domain serviced by the authority")
-	newCmd.Flags().StringP("name", "n", "root", "name of the authority")
+	newCmd.Flags().StringP("name", "n", "", "name of the authority")
 	newCmd.Flags().BoolP("ocsp", "o", false, "use OCSP in this authority")
 	newCmd.Flags().String("org", "Contoso", "organization name serviced by the authority")
 	newCmd.Flags().BoolP("timestamp", "t", false, "use timestamping in this authority")
@@ -189,6 +323,8 @@ func init() {
 	newCmd.MarkFlagsMutuallyExclusive("public", "strict")
 
 	newCmd.Flags().Bool("scm", false, "include generation of SCM files")
+
+	newCmd.MarkFlagsMutuallyExclusive("scm", "subordinate")
 
 	newCmd.Flags().Var(&keyType, "keytype", `algorithm to use for private key (allowed "edwards", "elliptic", "rsa" default "edwards")`)
 }
@@ -209,9 +345,15 @@ func cnf_ca() {
 
 	contents.Write(cnf_default_ca())
 
-	contents.WriteString("copy_extensions         = none\n")
-	contents.WriteString("default_days            = 7300\n")
-	contents.WriteString("default_crl_days        = 365\n")
+	if settings.Type == "subordinate" {
+		contents.WriteString("copy_extensions         = copy\n")
+		contents.WriteString("default_days            = 365\n")
+		contents.WriteString("default_crl_days        = 30\n")
+	} else {
+		contents.WriteString("copy_extensions         = none\n")
+		contents.WriteString("default_days            = 7300\n")
+		contents.WriteString("default_crl_days        = 365\n")
+	}
 
 	if !settings.Public {
 		contents.Write(cnf_policy())
@@ -248,7 +390,12 @@ func cnf_ca() {
 		contents.Write(ext_timestamp())
 	}
 
-	contents.Write(ext_subca())
+	if settings.Type == "subordinate" {
+		contents.Write(ext_server())
+		contents.Write(ext_client())
+	} else {
+		contents.Write(ext_subca())
+	}
 
 	touchFile("ca.cnf", contents.Bytes())
 }
@@ -266,7 +413,7 @@ func cnf_default() []byte {
 	var contents bytes.Buffer
 
 	contents.WriteString("aia_url                 = http://pki.$domain_suffix/$name.crt\n")
-	contents.WriteString("crl_url                 = http://pki.$domain_suffix/$name.crt\n")
+	contents.WriteString("crl_url                 = http://pki.$domain_suffix/$name.crl\n")
 
 	if settings.OCSP {
 		contents.WriteString("ocsp_url                =  http://ocsp-$name.$domain_suffix\n")
@@ -366,6 +513,27 @@ func ext_ca() []byte {
 	return contents.Bytes()
 }
 
+func ext_client() []byte {
+	var contents bytes.Buffer
+
+	contents.WriteString("\n[client_ext]\n")
+	contents.WriteString("authorityInfoAccess     = @issuer_info\n")
+	contents.WriteString("authorityKeyIdentifier  = keyid:always, issuer:always\n")
+	contents.WriteString("basicConstraints        = critical,CA:false\n")
+	contents.WriteString("crlDistributionPoints   = @crl_info\n")
+	contents.WriteString("extendedKeyUsage        = clientAuth,codeSigning,emailProtection\n")
+	contents.WriteString("keyUsage                = critical,digitalSignature\n")
+
+	if !settings.Public {
+		contents.WriteString("nameConstraints         = @name_constraints\n")
+	}
+
+	contents.WriteString("subjectAltName          = email:move\n")
+	contents.WriteString("subjectKeyIdentifier    = hash\n")
+
+	return contents.Bytes()
+}
+
 func ext_ocsp() []byte {
 	var contents bytes.Buffer
 
@@ -378,6 +546,26 @@ func ext_ocsp() []byte {
 	contents.WriteString("subjectKeyIdentifier    = hash\n")
 	contents.WriteString("basicConstraints        = critical,CA:true\n")
 	contents.WriteString("keyUsage                = critical,keyCertSign,cRLSign\n")
+	contents.WriteString("subjectKeyIdentifier    = hash\n")
+
+	return contents.Bytes()
+}
+
+func ext_server() []byte {
+	var contents bytes.Buffer
+
+	contents.WriteString("\n[server_ext]\n")
+	contents.WriteString("authorityInfoAccess     = @issuer_info\n")
+	contents.WriteString("authorityKeyIdentifier  = keyid:always, issuer:always\n")
+	contents.WriteString("basicConstraints        = critical,CA:false\n")
+	contents.WriteString("crlDistributionPoints   = @crl_info\n")
+	contents.WriteString("extendedKeyUsage        = clientAuth,serverAuth\n")
+	contents.WriteString("keyUsage                = critical,digitalSignature,keyEncipherment\n")
+
+	if !settings.Public {
+		contents.WriteString("nameConstraints         = @name_constraints\n")
+	}
+
 	contents.WriteString("subjectKeyIdentifier    = hash\n")
 
 	return contents.Bytes()
@@ -484,7 +672,6 @@ func new_private_key(filePath string) {
 			fmt.Sprintf("-out %s", filePath),
 		}
 
-		fmt.Println(param)
 		executeExternalProgram("openssl", param...)
 
 		param = []string{
@@ -495,7 +682,6 @@ func new_private_key(filePath string) {
 			fmt.Sprintf("-passout pass:%s", keyPass),
 		}
 
-		fmt.Println(param)
 		executeExternalProgram("openssl", param...)
 
 		os.Remove(filePath)

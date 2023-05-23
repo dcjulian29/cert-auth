@@ -27,15 +27,22 @@ import (
 )
 
 type CertAuth struct {
-	Type         string
-	Public       bool
-	Name         string
-	Domain       string
-	Country      string
-	Organization string
-	CommonName   string
-	OCSP         bool
-	TimeStamp    bool
+	Type         string        `mapstructure:"type"`
+	Public       bool          `mapstructure:"public"`
+	Name         string        `mapstructure:"authority_name"`
+	Domain       string        `mapstructure:"domain"`
+	Country      string        `mapstructure:"country"`
+	Organization string        `mapstructure:"organization"`
+	CommonName   string        `mapstructure:"common_name"`
+	OCSP         bool          `mapstructure:"ocsp"`
+	TimeStamp    bool          `mapstructure:"timestamp"`
+	Serial       string        `mapstructure:"serial"`
+	Subordinates []Subordinate `mapstructure:"subordinates"`
+}
+
+type Subordinate struct {
+	Id   string `mapstructure:"id"`
+	Name string `mapstructure:"name"`
 }
 
 var (
@@ -88,15 +95,33 @@ func initConfig() {
 		fmt.Fprintf(os.Stderr, "\033[1;36mUsing config file: %s\033[0m\n", viper.ConfigFileUsed())
 	}
 
-	settings.Type = viper.GetString("type")
-	settings.Public = viper.GetBool("public_access")
-	settings.Name = viper.GetString("name")
-	settings.Domain = viper.GetString("domain")
-	settings.Country = viper.GetString("country")
-	settings.Organization = viper.GetString("organization")
-	settings.CommonName = viper.GetString("common_name")
-	settings.OCSP = viper.GetBool("ocsp")
-	settings.TimeStamp = viper.GetBool("timestamp")
+	err := viper.Unmarshal(&settings)
+	cobra.CheckErr(err)
+
+	if settings.Type != "root" {
+		settings.Subordinates = []Subordinate{}
+	}
+}
+
+func saveConfig(filePath string, authority CertAuth) {
+	viper.Set("common_name", authority.CommonName)
+	viper.Set("country", authority.Country)
+	viper.Set("domain", authority.Domain)
+	viper.Set("authority_name", authority.Name)
+	viper.Set("ocsp", authority.OCSP)
+	viper.Set("organization", authority.Organization)
+	viper.Set("public_access", authority.Public)
+	viper.Set("timestamp", authority.TimeStamp)
+	viper.Set("type", authority.Type)
+	viper.Set("serial", authority.Serial)
+
+	if authority.Type == "root" {
+		viper.Set("subordinates", authority.Subordinates)
+	} else {
+		viper.Set("subordinates", []Subordinate{})
+	}
+
+	viper.WriteConfigAs(filePath)
 }
 
 func ensureAuthorityDirectory() {
@@ -136,6 +161,15 @@ func executeExternalProgram(program string, params ...string) {
 	if err := cmd.Run(); err != nil {
 		ensureWorkingDirectoryAndExit()
 	}
+}
+
+func executeExternalProgramCapture(program string, params ...string) string {
+	cmd := exec.Command(program, params...)
+	cmd.Stdin = os.Stdin
+	out, err := cmd.CombinedOutput()
+	cobra.CheckErr(err)
+
+	return string(out)
 }
 
 func fileExists(filename string) bool {

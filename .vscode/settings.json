@@ -13,6 +13,7 @@
     "ldflags",
     "lname",
     "noout",
+    "rootca",
     "secp",
     "subca",
     "szostok"
