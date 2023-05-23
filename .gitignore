@@ -6,3 +6,4 @@ db/
 dist/
 private/
 test_ca/
+subca/
