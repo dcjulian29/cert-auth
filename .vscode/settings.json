@@ -16,6 +16,7 @@
     "rootca",
     "secp",
     "subca",
-    "szostok"
+    "szostok",
+    "updatedb"
   ]
 }

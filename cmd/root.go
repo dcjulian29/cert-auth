@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.szostok.io/version/extension"
+	"golang.org/x/term"
 )
 
 type CertAuth struct {
@@ -122,6 +123,16 @@ func saveConfig(filePath string, authority CertAuth) {
 	}
 
 	viper.WriteConfigAs(filePath)
+}
+
+func askPassword(filePath string) string {
+	fmt.Printf("\033[1;35mEnter pass phrase for %s:\033[0m ", filePath)
+
+	p, err := term.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
+	cobra.CheckErr(err)
+
+	return string(p)
 }
 
 func ensureAuthorityDirectory() {

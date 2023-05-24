@@ -17,10 +17,8 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/term"
 )
 
 var updateCmd = &cobra.Command{
@@ -46,13 +44,7 @@ func init() {
 
 func update_authority(password string) {
 	if len(password) == 0 {
-		fmt.Printf("\033[1;35mEnter pass phrase for %s:\033[0m ", "private/ca.key")
-
-		p, err := term.ReadPassword(int(os.Stdin.Fd()))
-		fmt.Println()
-		cobra.CheckErr(err)
-
-		password = string(p)
+		password = askPassword("private/ca.key")
 	}
 
 	executeExternalProgram("openssl", []string{
