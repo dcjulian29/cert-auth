@@ -6,6 +6,7 @@
     "crlnumber",
     "dcjulian",
     "ecparam",
+    "gencrl",
     "genpkey",
     "goarch",
     "infiles",

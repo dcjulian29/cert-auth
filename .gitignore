@@ -7,3 +7,6 @@ dist/
 private/
 test_ca/
 subca/
+
+*.crl
+*.cnf
