@@ -47,6 +47,8 @@ func update_authority(password string) {
 		password = askPassword("private/ca.key")
 	}
 
+	info("Updating the certificate authority database...")
+
 	executeExternalProgram("openssl", []string{
 		"ca",
 		fmt.Sprintf("-config %s", "ca.cnf"),
