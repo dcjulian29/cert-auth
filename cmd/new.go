@@ -652,12 +652,7 @@ func git_ignore() {
 	}
 }
 func new_private_key(filePath string) {
-	fmt.Printf("\033[1;35mEnter pass phrase for %s:\033[0m ", filePath)
-
-	password, err := term.ReadPassword(int(os.Stdin.Fd()))
-	cobra.CheckErr(err)
-
-	keyPass = string(password)
+	keyPass = askPassword(filePath)
 
 	var param []string
 
@@ -739,14 +734,7 @@ func ocsp_setup() {
 
 	touchFile("ocsp.cnf", contents.Bytes())
 
-	info("Generating the OCSP private key for this authority...")
-
-	executeExternalProgram("openssl", []string{
-		"genrsa",
-		"-out private/ocsp.key",
-		"-verbose",
-		"2048",
-	}...)
+	ocsp_reset()
 
 	info("Generating the OCSP certificate request...")
 
@@ -760,24 +748,13 @@ func ocsp_setup() {
 
 	fmt.Printf("    ...    %s\n", "csr/ocsp.csr")
 
-	info("Generating the OCSP certificate for this authority...")
-
-	executeExternalProgram("openssl", []string{
-		"ca",
-		"-batch",
-		"-config ca.cnf",
-		"-out certs/ocsp.pem",
-		"-extensions ocsp_ext",
-		"-days 90",
-		fmt.Sprintf("-passin pass:%s", keyPass),
-		"-infiles csr/ocsp.csr",
-	}...)
+	ocsp_update(keyPass)
 }
 
 func timestamp_setup() {
 	var contents bytes.Buffer
 
-	info("Initializing timestamping configuration for this authority...")
+	info("Initializing timestamp configuration for this authority...")
 
 	contents.WriteString("[req]\n")
 	contents.WriteString("default_bits            = 2048\n")
@@ -794,16 +771,9 @@ func timestamp_setup() {
 
 	touchFile("timestamp.cnf", contents.Bytes())
 
-	info("Generating the timestamping private key for this authority...")
+	timestamp_reset()
 
-	executeExternalProgram("openssl", []string{
-		"genrsa",
-		"-out private/timestamp.key",
-		"-verbose",
-		"2048",
-	}...)
-
-	info("Generating the timestamping certificate request...")
+	info("Generating the timestamp certificate request...")
 
 	executeExternalProgram("openssl", []string{
 		"req",
@@ -815,18 +785,7 @@ func timestamp_setup() {
 
 	fmt.Printf("    ...    %s\n", "csr/timestamp.csr")
 
-	info("Generating the timestamping certificate for this authority...")
-
-	executeExternalProgram("openssl", []string{
-		"ca",
-		"-batch",
-		"-config ca.cnf",
-		"-out certs/timestamp.pem",
-		"-extensions timestamp_ext",
-		"-days 90",
-		fmt.Sprintf("-passin pass:%s", keyPass),
-		"-infiles csr/timestamp.csr",
-	}...)
+	timestamp_update(keyPass)
 }
 
 func touchFile(filePath string, content []byte) {
