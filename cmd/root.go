@@ -72,6 +72,15 @@ func askPassword(filePath string) string {
 	return string(p)
 }
 
+func dirExists(path string) bool {
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	return info.IsDir()
+}
+
 func ensureAuthorityDirectory() {
 	if workingDirectory != folderPath {
 		if err := os.Chdir(folderPath); err != nil {
