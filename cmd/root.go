@@ -19,32 +19,11 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"go.szostok.io/version/extension"
 	"golang.org/x/term"
 )
-
-type CertAuth struct {
-	Type         string        `mapstructure:"type"`
-	Public       bool          `mapstructure:"public"`
-	Name         string        `mapstructure:"authority_name"`
-	Domain       string        `mapstructure:"domain"`
-	Country      string        `mapstructure:"country"`
-	Organization string        `mapstructure:"organization"`
-	CommonName   string        `mapstructure:"common_name"`
-	OCSP         bool          `mapstructure:"ocsp"`
-	TimeStamp    bool          `mapstructure:"timestamp"`
-	Serial       string        `mapstructure:"serial"`
-	Subordinates []Subordinate `mapstructure:"subordinates"`
-}
-
-type Subordinate struct {
-	Id   string `mapstructure:"id"`
-	Name string `mapstructure:"name"`
-}
 
 var (
 	cfgFile          string
@@ -80,49 +59,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "specify authority configuration file")
 	rootCmd.PersistentFlags().StringVar(&folderPath, "path", pwd, "path to certificate authority folder")
 
-	cobra.OnInitialize(initConfig)
-}
-
-func initConfig() {
-	if cfgFile != "" {
-		folderPath = filepath.Dir(cfgFile)
-	}
-
-	viper.AddConfigPath(folderPath)
-	viper.SetConfigType("yml")
-	viper.SetConfigName("ca")
-
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintf(os.Stderr, "\033[1;36mUsing config file: %s\033[0m\n", viper.ConfigFileUsed())
-	}
-
-	err := viper.Unmarshal(&settings)
-	cobra.CheckErr(err)
-
-	if settings.Type != "root" {
-		settings.Subordinates = []Subordinate{}
-	}
-}
-
-func saveConfig(filePath string, authority CertAuth) {
-	viper.Set("common_name", authority.CommonName)
-	viper.Set("country", authority.Country)
-	viper.Set("domain", authority.Domain)
-	viper.Set("authority_name", authority.Name)
-	viper.Set("ocsp", authority.OCSP)
-	viper.Set("organization", authority.Organization)
-	viper.Set("public_access", authority.Public)
-	viper.Set("timestamp", authority.TimeStamp)
-	viper.Set("type", authority.Type)
-	viper.Set("serial", authority.Serial)
-
-	if authority.Type == "root" {
-		viper.Set("subordinates", authority.Subordinates)
-	} else {
-		viper.Set("subordinates", []Subordinate{})
-	}
-
-	viper.WriteConfigAs(filePath)
+	cobra.OnInitialize(initialize_authority)
 }
 
 func askPassword(filePath string) string {

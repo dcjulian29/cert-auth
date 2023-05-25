@@ -243,7 +243,7 @@ var (
 
 				rootAuth.Subordinates = newsub
 
-				saveConfig("ca.yml", rootAuth) // root CA configuration
+				save_authority("ca.yml", rootAuth) // root CA configuration
 
 				info("Writing subordinate authority chain certificate...")
 
@@ -263,7 +263,7 @@ var (
 
 			info("Writing authority configuration file...")
 
-			saveConfig("ca.yml", settings)
+			save_authority("ca.yml", settings)
 
 			fmt.Printf("    ...    %s\n", "ca.yml")
 
