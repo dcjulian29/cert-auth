@@ -18,17 +18,14 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path"
 
 	"github.com/spf13/cobra"
 )
 
-var revokeReason RevokeType = unspecified
-
-var revokeCmd = &cobra.Command{
-	Use:   "revoke",
-	Short: "Revoke subordinate authority.",
-	Long:  "Revoke subordinate authority.",
+var removeCmd = &cobra.Command{
+	Use:   "remove",
+	Short: "Remove subordinate authority files.",
+	Long:  "Remove subordinate authority files.",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if len(settings.Name) == 0 {
 			cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
@@ -49,15 +46,12 @@ var revokeCmd = &cobra.Command{
 		for _, s := range settings.Subordinates {
 			if s.Name == name {
 				if s.Id == "~REVOKED~" {
-					cobra.CheckErr(fmt.Errorf("'%s' authority has already been revoked", s.Name))
+					remove_authority(s.Name)
+
+					return
 				}
 
-				pass := askPassword("private/ca.key")
-				revoke_authority(s, revokeReason, pass)
-
-				settings.Subordinates = addSubordinate(settings, s.Name, "~REVOKED~")
-
-				save_authority("ca.yml", settings)
+				cobra.CheckErr(fmt.Errorf("'%s' authority has not been revoked", s.Name))
 
 				return
 			}
@@ -68,29 +62,17 @@ var revokeCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(revokeCmd)
+	rootCmd.AddCommand(removeCmd)
 
-	revokeCmd.Flags().VarP(&revokeReason, "reason", "r", "reason for revocation")
-	revokeCmd.Flags().StringP("name", "n", "", "name of subordinate authority")
+	removeCmd.Flags().StringP("name", "n", "", "name of subordinate authority")
 
-	revokeCmd.MarkFlagRequired("name")
+	removeCmd.MarkFlagRequired("name")
 }
 
-func revoke_authority(subordinate Subordinate, reason RevokeType, pass string) {
-	if len(subordinate.Id) > 0 {
-		cert := path.Join("certs", fmt.Sprintf("%s.pem", subordinate.Id))
-		if fileExists(cert) {
-			executeExternalProgram("openssl", []string{
-				"ca",
-				"-config ca.cnf",
-				fmt.Sprintf("-revoke %s", cert),
-				fmt.Sprintf("-crl_reason %s", reason),
-				fmt.Sprintf("-passin pass:%s", pass),
-			}...)
-
-			os.Rename(cert, fmt.Sprintf("%s.revoked", cert))
-		} else {
-			cobra.CheckErr(fmt.Errorf("'%s' certificate file not found", subordinate.Id))
-		}
+func remove_authority(name string) {
+	if !dirExists(name) {
+		cobra.CheckErr(fmt.Errorf("'%s' authority has already been removed", name))
 	}
+
+	os.RemoveAll(name)
 }
