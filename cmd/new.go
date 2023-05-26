@@ -221,27 +221,7 @@ var (
 				serial = strings.TrimRight(strings.Replace(serial, "serial=", "", 1), "\r\n")
 				settings.Serial = serial
 
-				subordinate := Subordinate{Name: settings.Name, Id: serial}
-
-				var newsub []Subordinate
-				found := false
-
-				for _, s := range rootAuth.Subordinates {
-					if s.Name == subordinate.Name {
-						newsub = append(newsub, subordinate)
-						found = true
-
-						// TODO: If one was already issued, the previous cert should be revoked.
-					} else {
-						newsub = append(newsub, s)
-					}
-				}
-
-				if !found {
-					newsub = append(newsub, subordinate)
-				}
-
-				rootAuth.Subordinates = newsub
+				rootAuth.Subordinates = addSubordinate(rootAuth, settings.Name, serial)
 
 				save_authority("ca.yml", rootAuth) // root CA configuration
 

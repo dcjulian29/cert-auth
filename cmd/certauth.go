@@ -43,6 +43,27 @@ type Subordinate struct {
 	Name string `yaml:"name"`
 }
 
+func addSubordinate(authority CertAuth, name, serial string) []Subordinate {
+	subordinate := Subordinate{Name: name, Id: serial}
+	newsub := []Subordinate{}
+	found := false
+
+	for _, s := range authority.Subordinates {
+		if s.Name == subordinate.Name {
+			newsub = append(newsub, subordinate)
+			found = true
+		} else {
+			newsub = append(newsub, s)
+		}
+	}
+
+	if !found {
+		newsub = append(newsub, subordinate)
+	}
+
+	return newsub
+}
+
 func initialize_authority() {
 	if cfgFile != "" {
 		folderPath = filepath.Dir(cfgFile)
