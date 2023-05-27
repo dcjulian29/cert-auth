@@ -17,6 +17,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -49,6 +51,38 @@ var ocspCmd = &cobra.Command{
 	},
 }
 
+var ocspServerCmd = &cobra.Command{
+	Use:   "server",
+	Short: "Manage OCSP Responder suitable for low-volume traffic.",
+	Long:  "Manage OCSP Responder suitable for low-volume traffic.",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if len(settings.Name) == 0 {
+			cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
+		}
+
+		ensureAuthorityDirectory()
+	},
+	PostRun: func(cmd *cobra.Command, args []string) {
+		ensureWorkingDirectoryAndExit()
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		if settings.OCSP {
+			if t, _ := cmd.Flags().GetBool("start"); t {
+				port, _ := cmd.Flags().GetInt("port")
+				background, _ := cmd.Flags().GetBool("background")
+
+				ocsp_start(port, background)
+			}
+
+			if p, _ := cmd.Flags().GetBool("stop"); p {
+				ocsp_stop()
+			}
+		} else {
+			cobra.CheckErr(fmt.Errorf("OCSP is not enabled in the '%s' certificate authority", folderPath))
+		}
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(ocspCmd)
 
@@ -56,6 +90,15 @@ func init() {
 	ocspCmd.Flags().BoolP("reset", "r", false, "reset the OCSP certificate")
 
 	ocspCmd.MarkFlagsMutuallyExclusive("update", "reset")
+
+	ocspCmd.AddCommand(ocspServerCmd)
+
+	ocspServerCmd.Flags().Bool("start", false, "start the OCSP responder")
+	ocspServerCmd.Flags().Bool("stop", false, "stop the OCSP responder")
+	ocspServerCmd.Flags().IntP("port", "p", 8080, "port for OCSP responder to listen on")
+	ocspServerCmd.Flags().BoolP("background", "b", false, "run the OCSP responder in the background")
+
+	ocspServerCmd.MarkFlagsMutuallyExclusive("start", "stop")
 }
 
 func ocsp_reset() {
@@ -67,6 +110,66 @@ func ocsp_reset() {
 		"-verbose",
 		"2048",
 	}...)
+}
+
+func ocsp_running(name string) bool {
+	r := executeExternalProgramCapture("docker", []string{
+		"ps",
+		"--format", "{{.Names}}", "--filter",
+		fmt.Sprintf("name=%s", name),
+	}...)
+
+	return len(r) != 0
+}
+
+func ocsp_start(port int, background bool) {
+	name := fmt.Sprintf("ocsp_%s", settings.Name)
+
+	if ocsp_running(name) {
+		cobra.CheckErr(fmt.Errorf("'%s' OCSP responder is already running", settings.Name))
+	}
+
+	pwd, _ := os.Getwd()
+	detach := "-it"
+
+	if background {
+		detach = "--detach"
+	}
+
+	executeExternalProgram("docker", []string{
+		"run",
+		"--rm",
+		detach,
+		"--name",
+		name,
+		"-p",
+		fmt.Sprintf("%d:8080/tcp", port),
+		"-v",
+		fmt.Sprintf("%s:/data", strings.ReplaceAll(pwd, "\\", "/")),
+		"dcjulian29/openssl:latest",
+		"ocsp",
+		"-port", "8080",
+		"-index", "db/index",
+		"-rsigner", "certs/ocsp.pem",
+		"-rkey", "private/ocsp.key",
+		"-CA", "certs/ca.pem",
+		"-text",
+	}...)
+
+}
+
+func ocsp_stop() {
+	name := fmt.Sprintf("ocsp_%s", settings.Name)
+
+	if ocsp_running(name) {
+		executeExternalProgram("docker", []string{
+			"rm",
+			"--force",
+			name,
+		}...)
+	} else {
+		cobra.CheckErr(fmt.Errorf("'%s' OCSP responder is not running", settings.Name))
+	}
 }
 
 func ocsp_update(password string) {
