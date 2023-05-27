@@ -17,27 +17,22 @@ package cmd
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"strings"
+	"reflect"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var settingsCmd = &cobra.Command{
-	Use:   "settings [<key> [<value>]]",
-	Short: "manage settings of the certificate authority",
-	Long:  `manage settings of the certificate authority`,
+	Use:   "settings [<key>]",
+	Args:  cobra.MaximumNArgs(1),
+	Short: "Show setting(s) of the certificate authority",
+	Long:  "Show setting(s) of the certificate authority",
 	Run: func(cmd *cobra.Command, args []string) {
 		key := ""
-		value := ""
 
 		if len(args) > 0 {
 			key = args[0]
-			if len(args) > 1 {
-				value = strings.Join(args[1:], " ")
-			}
 		}
 
 		if len(key) == 0 {
@@ -45,15 +40,12 @@ var settingsCmd = &cobra.Command{
 				fmt.Printf("%s\n", string(json))
 			}
 		} else {
-			if len(value) == 0 {
-				fmt.Printf("%s\n", viper.Get(key))
+			val := reflect.ValueOf(settings).FieldByName(key)
+
+			if val.IsValid() {
+				fmt.Printf("%v\n", val)
 			} else {
-				if viper.IsSet(key) {
-					viper.Set(key, value)
-					viper.WriteConfig()
-				} else {
-					cobra.CheckErr(errors.New("cannot set value for uninitialized authority"))
-				}
+				cobra.CheckErr(fmt.Errorf("'%s' is not a valid setting", key))
 			}
 		}
 	},
