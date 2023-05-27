@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -66,14 +67,15 @@ func addSubordinate(authority CertAuth, name, serial string) []Subordinate {
 
 func initialize_authority() {
 	if cfgFile != "" {
-		folderPath = filepath.Dir(cfgFile)
+		folderPath, cfgFile = filepath.Split(cfgFile)
 	} else {
 		cfgFile = "ca.yml"
 	}
 
-	if fileExists(cfgFile) {
-		fmt.Fprintf(os.Stderr, "\033[1;36mUsing config file: %s\033[0m\n", cfgFile)
-		settings = load_authority(cfgFile)
+	file := path.Join(folderPath, cfgFile)
+	if fileExists(file) {
+		fmt.Fprintf(os.Stderr, "\033[1;36mUsing config file: %s\033[0m\n", file)
+		settings = load_authority(file)
 	}
 }
 
