@@ -20,6 +20,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -63,6 +64,25 @@ func addSubordinate(authority CertAuth, name, serial string) []Subordinate {
 	}
 
 	return newsub
+}
+
+func import_authority(filePath, pass string) (string, string) {
+	id := import_request(filePath)
+
+	info("Using root authority to sign the certificate for this authority...")
+
+	sign_request(id, pass, 1825)
+
+	serial := executeExternalProgramCapture("openssl", []string{
+		"x509",
+		"-noout",
+		fmt.Sprintf("-in ./certs/%s.pem", id),
+		"-serial",
+	}...)
+
+	serial = strings.TrimRight(strings.Replace(serial, "serial=", "", 1), "\r\n")
+
+	return id, serial
 }
 
 func initialize_authority() {

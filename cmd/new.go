@@ -25,7 +25,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/term"
 )
 
 var (
@@ -186,39 +185,14 @@ var (
 				serial = strings.TrimRight(strings.Replace(serial, "serial=", "", 1), "\r\n")
 				settings.Serial = serial
 			} else {
-				info("Using root authority to sign the certificate for this authority...")
-
-				fmt.Printf("\033[1;35mEnter pass phrase for %s:\033[0m ", "../private/ca.key")
-
-				password, err := term.ReadPassword(int(os.Stdin.Fd()))
-				cobra.CheckErr(err)
-				fmt.Println("")
-
-				authPass := string(password)
-
 				if err := os.Chdir("../"); err != nil {
 					cobra.CheckErr(err)
 				}
 
-				executeExternalProgram("openssl", []string{
-					"ca",
-					"-batch",
-					"-config ca.cnf",
-					"-extensions subca_ext",
-					"-days 1825",
-					fmt.Sprintf("-passin pass:%s", authPass),
-					fmt.Sprintf("-out ./%s/certs/ca.pem", settings.Name),
-					fmt.Sprintf("-in ./%s/csr/ca.csr", settings.Name),
-				}...)
+				id, serial := import_authority(fmt.Sprintf("./%s/csr/ca.csr", settings.Name), "")
 
-				serial = executeExternalProgramCapture("openssl", []string{
-					"x509",
-					"-noout",
-					fmt.Sprintf("-in ./%s/certs/ca.pem", settings.Name),
-					"-serial",
-				}...)
+				copyFile(fmt.Sprintf("./certs/%s.pem", id), fmt.Sprintf("./%s/certs/ca.pem", settings.Name))
 
-				serial = strings.TrimRight(strings.Replace(serial, "serial=", "", 1), "\r\n")
 				settings.Serial = serial
 
 				rootAuth.Subordinates = addSubordinate(rootAuth, settings.Name, serial)

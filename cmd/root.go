@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 
@@ -70,6 +71,28 @@ func askPassword(filePath string) string {
 	cobra.CheckErr(err)
 
 	return string(p)
+}
+
+func copyFile(src, dst string) {
+	if fileExists(src) {
+		if fileExists(dst) {
+			err := os.Remove(dst)
+			cobra.CheckErr(err)
+		}
+
+		source, err := os.Open(src)
+		cobra.CheckErr(err)
+
+		defer source.Close()
+
+		destination, err := os.Create(dst)
+		cobra.CheckErr(err)
+
+		defer destination.Close()
+
+		_, err = io.Copy(destination, source)
+		cobra.CheckErr(err)
+	}
 }
 
 func dirExists(path string) bool {
