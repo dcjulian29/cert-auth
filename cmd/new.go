@@ -17,8 +17,6 @@ package cmd
 
 import (
 	"bytes"
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"os"
 	"path"
@@ -132,12 +130,8 @@ var (
 			settings.OCSP, _ = cmd.Flags().GetBool("ocsp")
 			settings.TimeStamp, _ = cmd.Flags().GetBool("timestamp")
 
-			bytes := make([]byte, 15)
-			_, err := rand.Read(bytes)
-			cobra.CheckErr(err)
-
 			touchFile("db/index", []byte{})
-			touchFile("db/serial", []byte(hex.EncodeToString(bytes)))
+			touchFile("db/serial", []byte(getRandomId(15)))
 			touchFile("db/crlnumber", []byte(`1001`))
 
 			cnf_ca()

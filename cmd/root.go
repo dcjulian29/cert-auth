@@ -16,6 +16,8 @@ limitations under the License.
 package cmd
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -159,6 +161,14 @@ func fileExists(filename string) bool {
 	}
 
 	return !info.IsDir()
+}
+
+func getRandomId(length int) string {
+	bytes := make([]byte, length)
+	_, err := rand.Read(bytes)
+	cobra.CheckErr(err)
+
+	return hex.EncodeToString(bytes)
 }
 
 func info(message string) {

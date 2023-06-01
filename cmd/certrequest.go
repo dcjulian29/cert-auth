@@ -16,8 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"path"
 	"regexp"
@@ -74,11 +72,7 @@ func import_request(filePath string) string {
 
 	fmt.Printf("    ...    %s\n", request.Subject)
 
-	bytes := make([]byte, 16)
-	_, err := rand.Read(bytes)
-	cobra.CheckErr(err)
-
-	id := string([]byte(hex.EncodeToString(bytes)))
+	id := getRandomId(16)
 
 	csr := path.Join("csr", fmt.Sprintf("%s.csr", id))
 
