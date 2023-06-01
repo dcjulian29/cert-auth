@@ -28,10 +28,10 @@ import (
 )
 
 var (
-	strictPolicy bool
-	keyPass      string
-	keyType      KeyType
-	rootAuth     CertAuth
+	strictPolicy   bool
+	keyPass        string
+	privateKeyType KeyType
+	rootAuth       CertAuth
 
 	newCmd = &cobra.Command{
 		Use:   "new",
@@ -144,7 +144,7 @@ var (
 
 			info("Generating the certificate authority private key...")
 
-			new_private_key("private/ca.key")
+			new_private_key("private/ca.key", privateKeyType, "")
 
 			info("Generating the certificate authority request...")
 
@@ -280,7 +280,7 @@ func init() {
 
 	newCmd.MarkFlagsMutuallyExclusive("scm", "subordinate")
 
-	newCmd.Flags().Var(&keyType, "keytype", `algorithm to use for private key (allowed "edwards", "elliptic", "rsa" default "edwards")`)
+	newCmd.Flags().Var(&privateKeyType, "keytype", `algorithm to use for private key (allowed "edwards", "elliptic", "rsa" default "edwards")`)
 }
 
 func cnf_ca() {
@@ -605,12 +605,17 @@ func git_ignore() {
 		touchFile(".gitignore", contents.Bytes())
 	}
 }
-func new_private_key(filePath string) {
-	keyPass = askPassword(filePath)
+func new_private_key(filePath string, keyType KeyType, pass string) {
+	if len(pass) == 0 {
+		keyPass = askPassword(filePath)
+	} else {
+		keyPass = pass
+	}
 
 	var param []string
 
 	fmt.Println("")
+
 	switch keyType {
 	case elliptic:
 		param = []string{
