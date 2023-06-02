@@ -20,8 +20,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"go.szostok.io/version/extension"
@@ -152,6 +154,24 @@ func executeExternalProgramCapture(program string, params ...string) string {
 	cobra.CheckErr(err)
 
 	return string(out)
+}
+
+func findFiles(dirPath, extension string) []string {
+	var files []string
+
+	filepath.WalkDir(dirPath, func(f string, d fs.DirEntry, e error) error {
+		if e != nil {
+			return e
+		}
+
+		if filepath.Ext(d.Name()) == extension {
+			files = append(files, f)
+		}
+
+		return nil
+	})
+
+	return files
 }
 
 func fileExists(filename string) bool {
