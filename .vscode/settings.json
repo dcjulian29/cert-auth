@@ -9,6 +9,7 @@
     "gencrl",
     "genpkey",
     "goarch",
+    "gomod",
     "infiles",
     "keyid",
     "ldflags",
