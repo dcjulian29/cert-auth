@@ -3,7 +3,7 @@ module github.com/dcjulian29/cert-auth
 go 1.20
 
 require (
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	go.szostok.io/version v1.2.0
 )
 
