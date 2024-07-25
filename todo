@@ -1,0 +1,33 @@
+# To Do
+
+Starting with domain name (contoso.local) the Name of the CA will be contoso.local Root CA
+The subordinate will be named contoso.local Signing CA
+pki.contoso.local is the "root" of the CA
+For each CA (root, signing)
+
+- $Name.cer?? DER format
+- $Name.crl   DER format
+
+The root has CRL but not OCSP
+the signing has CRL and OCSP and Timestamping(optional)
+
+   Root
+   |
+   +-- Signing            Client (Email,CodeSigning,Encryption) and Server (manual workflow)
+   |
+   +-- Acme               Step-CA ACME provisioner
+   |
+   +-- ActiveDirectory    Windows-specific CA (Optional)
+
+Figure out OCSP...
+hosting NGINX? how? ocsp.contoso.local/$Name or ocsp-$Name.contoso.local or $Name.ocsp.contoso.local
+
+Figure out timestamping...
+What do I do with cert? what is needed to host? open-source?
+
+Ensure that the CA module can run on Linux in conjunction with the PowershellForOpenSSL module (to shell out to the openssl binary installed)
+Possibly the module can be reworked to only use the container so it would be exactly same on Windows and Linux.
+
+API (maybe GO ;) to interact with PowerShell and UI sitting on top of it.
+
+Eventual workflows for API (or lock it to localhost and don't worry about it, or pass it off to a NGINX reverse proxy that uses auth modules)
