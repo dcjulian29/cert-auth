@@ -1,6 +1,6 @@
 module github.com/dcjulian29/cert-auth
 
-go 1.20
+go 1.24
 
 require (
 	github.com/spf13/cobra v1.9.1
