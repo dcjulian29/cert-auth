@@ -1,6 +1,6 @@
 module github.com/dcjulian29/cert-auth
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/spf13/cobra v1.10.2
@@ -13,6 +13,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/dcjulian29/go-toolbox v0.7.0
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/goccy/go-yaml v1.11.0 // indirect

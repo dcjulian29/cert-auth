@@ -26,6 +26,7 @@ import (
 	"path/filepath"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/spf13/cobra"
 	"go.szostok.io/version/extension"
 	"golang.org/x/term"
@@ -54,7 +55,7 @@ func Execute() {
 	)
 
 	if err := rootCmd.Execute(); err != nil {
-		cobra.CheckErr(err)
+		fmt.Fprintln(os.Stderr, "\n"+color.Fatal(err.Error()))
 		os.Exit(1)
 	}
 }
