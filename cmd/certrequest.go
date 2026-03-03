@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
@@ -51,7 +52,7 @@ func load_request(filePath string) CertRequest {
 	var request CertRequest
 	filePath = strings.ReplaceAll(filePath, "\\", "/")
 
-	text := executeExternalProgramCapture("openssl", []string{
+	text, _ := execute.ExternalProgramCapture("openssl", []string{
 		"req",
 		fmt.Sprintf("-in %s", filePath),
 		"-noout",
@@ -100,7 +101,7 @@ func sign_request(id, pass string, days int) {
 		pass = askPassword("private/ca.key")
 	}
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"ca",
 		"-batch",
 		"-config ca.cnf",
@@ -164,7 +165,7 @@ func new_certificate_request(requestFile, keyFile, pass string, data CertRequest
 		pass = askPassword(keyFile)
 	}
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"req",
 		fmt.Sprintf("-config %s", configFile),
 		"-new",

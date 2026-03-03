@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
@@ -135,7 +136,7 @@ var (
 
 			info("Generating the certificate authority request...")
 
-			executeExternalProgram("openssl", []string{
+			execute.ExternalProgram("openssl", []string{
 				"req",
 				"-new",
 				"-config ca.cnf",
@@ -152,7 +153,7 @@ var (
 			if settings.Type == "root" {
 				info("Generating the certificate for this authority...")
 
-				executeExternalProgram("openssl", []string{
+				execute.ExternalProgram("openssl", []string{
 					"ca",
 					"-selfsign",
 					"-config ca.cnf",
@@ -162,7 +163,7 @@ var (
 					fmt.Sprintf("-passin pass:%s", keyPass),
 				}...)
 
-				serial = executeExternalProgramCapture("openssl", []string{
+				serial, _ = execute.ExternalProgramCapture("openssl", []string{
 					"x509",
 					"-noout",
 					"-in ./certs/ca.pem",
@@ -613,7 +614,7 @@ func new_private_key(filePath string, keyType KeyType, pass string) {
 			fmt.Sprintf("-out %s", filePath),
 		}
 
-		executeExternalProgram("openssl", param...)
+		execute.ExternalProgram("openssl", param...)
 
 		param = []string{
 			"ec",
@@ -623,7 +624,7 @@ func new_private_key(filePath string, keyType KeyType, pass string) {
 			fmt.Sprintf("-passout pass:%s", keyPass),
 		}
 
-		executeExternalProgram("openssl", param...)
+		execute.ExternalProgram("openssl", param...)
 
 		os.Remove(filePath)
 		os.Rename(fmt.Sprintf("%s.tmp", filePath), filePath)
@@ -643,7 +644,7 @@ func new_private_key(filePath string, keyType KeyType, pass string) {
 			param = append(param, "2048")
 		}
 
-		executeExternalProgram("openssl", param...)
+		execute.ExternalProgram("openssl", param...)
 
 	default:
 		param = []string{
@@ -654,7 +655,7 @@ func new_private_key(filePath string, keyType KeyType, pass string) {
 			fmt.Sprintf("-pass pass:%s", keyPass),
 		}
 
-		executeExternalProgram("openssl", param...)
+		execute.ExternalProgram("openssl", param...)
 	}
 
 	fmt.Printf("\n    ...    %s\n", filePath)
@@ -684,7 +685,7 @@ func ocsp_setup() {
 
 	info("Generating the OCSP certificate request...")
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"req",
 		"-new",
 		"-config ocsp.cnf",
@@ -721,7 +722,7 @@ func timestamp_setup() {
 
 	info("Generating the timestamp certificate request...")
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"req",
 		"-new",
 		"-config timestamp.cnf",

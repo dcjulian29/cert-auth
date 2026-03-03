@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
@@ -40,7 +41,7 @@ var crlCmd = &cobra.Command{
 		}
 
 		if filesystem.FileExists("ca.crl") {
-			executeExternalProgram("openssl", []string{
+			execute.ExternalProgram("openssl", []string{
 				"crl",
 				fmt.Sprintf("-in %s", "ca.crl"),
 				"-noout",
@@ -63,7 +64,7 @@ func crl_update(password string, authority certauth.Authority) {
 
 	info("Updating the certificate revocation list...")
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"ca",
 		"-config ca.cnf",
 		"-gencrl",

@@ -20,6 +20,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/spf13/cobra"
 )
 
@@ -98,7 +99,7 @@ func init() {
 func ocsp_reset() {
 	info("Generating the OCSP private key for this authority...")
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"genrsa",
 		"-out private/ocsp.key",
 		"-verbose",
@@ -107,7 +108,7 @@ func ocsp_reset() {
 }
 
 func ocsp_running(name string) bool {
-	r := executeExternalProgramCapture("docker", []string{
+	r, _ := execute.ExternalProgramCapture("docker", []string{
 		"ps",
 		"--format", "{{.Names}}", "--filter",
 		fmt.Sprintf("name=%s", name),
@@ -130,7 +131,7 @@ func ocsp_start(port int, background bool) {
 		detach = "--detach"
 	}
 
-	executeExternalProgram("docker", []string{
+	execute.ExternalProgram("docker", []string{
 		"run",
 		"--rm",
 		detach,
@@ -156,7 +157,7 @@ func ocsp_stop() {
 	name := fmt.Sprintf("ocsp_%s", settings.Name)
 
 	if ocsp_running(name) {
-		executeExternalProgram("docker", []string{
+		execute.ExternalProgram("docker", []string{
 			"rm",
 			"--force",
 			name,
@@ -175,7 +176,7 @@ func ocsp_update(password string) {
 
 	info("Generating the OCSP certificate for this authority...")
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"ca",
 		"-batch",
 		"-config ca.cnf",

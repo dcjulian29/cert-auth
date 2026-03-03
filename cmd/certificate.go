@@ -24,6 +24,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
@@ -300,7 +301,7 @@ func certificate_approve(id string, certType CertificateType, days int) {
 	csrName := path.Join("csr", fmt.Sprintf("%s.csr", id))
 	pass := askPassword("private/ca.key")
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"ca",
 		"-batch",
 		fmt.Sprintf("-config %s", "ca.cnf"),
@@ -357,7 +358,7 @@ func certificate_revoke(filePath string, reason RevokeType) {
 
 	pass := askPassword("private/ca.key")
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"ca",
 		fmt.Sprintf("-config %s", "ca.cnf"),
 		fmt.Sprintf("-revoke %s", filePath),
@@ -380,7 +381,7 @@ func certificate_show(id string, revoked bool) {
 			cobra.CheckErr(fmt.Errorf("certificate '%s' was not found", id))
 		}
 
-		executeExternalProgram("openssl", []string{
+		execute.ExternalProgram("openssl", []string{
 			"x509",
 			"-text",
 			"-noout",
@@ -422,7 +423,7 @@ func certificate_validate(filepath string, bundle bool) {
 		touchFile(ca, body)
 	}
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"verify",
 		fmt.Sprintf("-CAfile %s", ca),
 		filepath,
@@ -437,7 +438,7 @@ func requests_show(id string) {
 			cobra.CheckErr(fmt.Errorf("request '%s' was not found", id))
 		}
 
-		executeExternalProgram("openssl", []string{
+		execute.ExternalProgram("openssl", []string{
 			"req",
 			"-text",
 			"-noout",

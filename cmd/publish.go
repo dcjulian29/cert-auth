@@ -23,6 +23,7 @@ import (
 	"path"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
@@ -140,7 +141,7 @@ func publish_files(authority certauth.Authority, dest string) {
 	}
 
 	if filesystem.FileExists(path.Join("certs", "ca.pem")) {
-		executeExternalProgram("openssl", []string{
+		execute.ExternalProgram("openssl", []string{
 			"x509",
 			"-outform der",
 			"-in certs/ca.pem",
@@ -149,7 +150,7 @@ func publish_files(authority certauth.Authority, dest string) {
 	}
 
 	if filesystem.FileExists("ca.crl") {
-		executeExternalProgram("openssl", []string{
+		execute.ExternalProgram("openssl", []string{
 			"crl",
 			"-in ca.crl",
 			fmt.Sprintf("-out %s/%s.crl", dest, authority.CommonName),
@@ -158,7 +159,7 @@ func publish_files(authority certauth.Authority, dest string) {
 	}
 
 	if filesystem.FileExists(path.Join("certs", "ocsp.pem")) {
-		executeExternalProgram("openssl", []string{
+		execute.ExternalProgram("openssl", []string{
 			"x509",
 			"-outform der",
 			"-in certs/ocsp.pem",
@@ -167,7 +168,7 @@ func publish_files(authority certauth.Authority, dest string) {
 	}
 
 	if filesystem.FileExists(path.Join("certs", "timestamp.pem")) {
-		executeExternalProgram("openssl", []string{
+		execute.ExternalProgram("openssl", []string{
 			"x509",
 			"-outform der",
 			"-in certs/ocsp.pem",

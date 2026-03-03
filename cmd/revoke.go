@@ -21,6 +21,7 @@ import (
 	"path"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
@@ -79,7 +80,7 @@ func revoke_authority(subordinate certauth.Subordinate, reason RevokeType, pass 
 	if len(subordinate.Id) > 0 {
 		cert := path.Join("certs", fmt.Sprintf("%s.pem", subordinate.Id))
 		if filesystem.FileExists(cert) {
-			executeExternalProgram("openssl", []string{
+			execute.ExternalProgram("openssl", []string{
 				"ca",
 				"-config ca.cnf",
 				fmt.Sprintf("-revoke %s", cert),

@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
@@ -79,24 +78,6 @@ func ensureAuthorityDirectory() {
 	if err := os.Chdir(folderPath); err != nil {
 		cobra.CheckErr(err)
 	}
-}
-
-func executeExternalProgram(program string, params ...string) error {
-	cmd := exec.Command(program, params...)
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-
-	return cmd.Run()
-}
-
-func executeExternalProgramCapture(program string, params ...string) string {
-	cmd := exec.Command(program, params...)
-	cmd.Stdin = os.Stdin
-	out, err := cmd.CombinedOutput()
-	cobra.CheckErr(err)
-
-	return string(out)
 }
 
 func findFiles(dirPath, extension string) []string {

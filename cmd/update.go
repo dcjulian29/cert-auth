@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/spf13/cobra"
 )
 
@@ -46,7 +47,7 @@ func update_authority(password string) {
 
 	info("Updating the certificate authority database...")
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"ca",
 		fmt.Sprintf("-config %s", "ca.cnf"),
 		"-updatedb",

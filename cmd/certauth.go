@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -35,7 +36,7 @@ func import_authority(filePath, pass string) (string, string) {
 
 	sign_request(id, pass, 1825)
 
-	serial := executeExternalProgramCapture("openssl", []string{
+	serial, _ := execute.ExternalProgramCapture("openssl", []string{
 		"x509",
 		"-noout",
 		fmt.Sprintf("-in ./certs/%s.pem", id),

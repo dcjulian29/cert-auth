@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/spf13/cobra"
 )
 
@@ -53,7 +54,7 @@ func init() {
 func timestamp_reset() {
 	info("Generating the timestamp private key for this authority...")
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"genrsa",
 		"-out private/timestamp.key",
 		"-verbose",
@@ -70,7 +71,7 @@ func timestamp_update(password string) {
 
 	info("Generating the timestamp certificate for this authority...")
 
-	executeExternalProgram("openssl", []string{
+	execute.ExternalProgram("openssl", []string{
 		"ca",
 		"-batch",
 		"-config ca.cnf",
