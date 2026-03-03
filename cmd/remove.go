@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
 
@@ -67,7 +68,7 @@ func init() {
 }
 
 func remove_authority(name string) {
-	if !dirExists(name) {
+	if !filesystem.DirectoryExists(name) {
 		cobra.CheckErr(fmt.Errorf("'%s' authority has already been removed", name))
 	}
 

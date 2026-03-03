@@ -318,7 +318,7 @@ func certificate_new(request CertRequestData, days int) {
 }
 
 func certificate_request_import(filePath string) {
-	if !fileExists(filePath) {
+	if !filesystem.FileExists(filePath) {
 		cobra.CheckErr(fmt.Errorf("'%s' doesn't exist or is not accessable", filePath))
 	}
 
@@ -351,7 +351,7 @@ func certificate_request_new(request CertRequestData) string {
 }
 
 func certificate_revoke(filePath string, reason RevokeType) {
-	if !fileExists(filePath) {
+	if !filesystem.FileExists(filePath) {
 		cobra.CheckErr(fmt.Errorf("certificate '%s' was not found", filePath))
 	}
 
@@ -376,7 +376,7 @@ func certificate_show(id string, revoked bool) {
 			pemFile = fmt.Sprintf("%s.revoked", pemFile)
 		}
 
-		if !fileExists(pemFile) {
+		if !filesystem.FileExists(pemFile) {
 			cobra.CheckErr(fmt.Errorf("certificate '%s' was not found", id))
 		}
 
@@ -396,13 +396,13 @@ func certificate_show(id string, revoked bool) {
 }
 
 func certificate_validate(filepath string, bundle bool) {
-	if !fileExists(filepath) {
+	if !filesystem.FileExists(filepath) {
 		cobra.CheckErr(fmt.Errorf("'%s' does not exists or is not accessable", filepath))
 	}
 
 	ca := path.Join("certs", "ca-chain.pem")
 
-	if !fileExists(ca) {
+	if !filesystem.FileExists(ca) {
 		ca = path.Join("certs", "ca.pem")
 	}
 
@@ -433,7 +433,7 @@ func requests_show(id string) {
 	if len(id) > 0 {
 		csrFile := path.Join("csr", fmt.Sprintf("%s.csr", id))
 
-		if !fileExists(csrFile) {
+		if !filesystem.FileExists(csrFile) {
 			cobra.CheckErr(fmt.Errorf("request '%s' was not found", id))
 		}
 

@@ -23,6 +23,7 @@ import (
 	"path"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
 
@@ -44,7 +45,7 @@ var publishCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		dest, _ := cmd.Flags().GetString("destination")
 
-		if dirExists(dest) {
+		if filesystem.DirectoryExists(dest) {
 			files, err := os.ReadDir(dest)
 			cobra.CheckErr(err)
 
@@ -57,7 +58,7 @@ var publishCmd = &cobra.Command{
 			}
 		}
 
-		ensureDir(dest)
+		filesystem.EnsureDirectoryExist(dest)
 
 		mime_types(path.Join(dest, "mime.types"))
 
@@ -100,7 +101,7 @@ func mime_types(filePath string) {
 }
 
 func is_mounted(id string, name string) bool {
-	if dirExists(name) {
+	if filesystem.DirectoryExists(name) {
 		s := load_authority(path.Join(name, "ca.yml"))
 
 		return s.Serial == id
@@ -138,7 +139,7 @@ func publish_files(authority certauth.Authority, dest string) {
 		crl_update(pass, authority)
 	}
 
-	if fileExists(path.Join("certs", "ca.pem")) {
+	if filesystem.FileExists(path.Join("certs", "ca.pem")) {
 		executeExternalProgram("openssl", []string{
 			"x509",
 			"-outform der",
@@ -147,7 +148,7 @@ func publish_files(authority certauth.Authority, dest string) {
 		}...)
 	}
 
-	if fileExists("ca.crl") {
+	if filesystem.FileExists("ca.crl") {
 		executeExternalProgram("openssl", []string{
 			"crl",
 			"-in ca.crl",
@@ -156,7 +157,7 @@ func publish_files(authority certauth.Authority, dest string) {
 		}...)
 	}
 
-	if fileExists(path.Join("certs", "ocsp.pem")) {
+	if filesystem.FileExists(path.Join("certs", "ocsp.pem")) {
 		executeExternalProgram("openssl", []string{
 			"x509",
 			"-outform der",
@@ -165,7 +166,7 @@ func publish_files(authority certauth.Authority, dest string) {
 		}...)
 	}
 
-	if fileExists(path.Join("certs", "timestamp.pem")) {
+	if filesystem.FileExists(path.Join("certs", "timestamp.pem")) {
 		executeExternalProgram("openssl", []string{
 			"x509",
 			"-outform der",

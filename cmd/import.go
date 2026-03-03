@@ -48,7 +48,7 @@ var importCmd = &cobra.Command{
 			file = path.Join("csr", fmt.Sprintf("%s.csr", name))
 		}
 
-		if !fileExists(file) {
+		if !filesystem.FileExists(file) {
 			cobra.CheckErr(fmt.Errorf("'%s' is not accessable", file))
 		}
 
@@ -69,13 +69,13 @@ var importCmd = &cobra.Command{
 			Subordinates: []certauth.Subordinate{},
 		}
 
-		ensureDir(name)
+		filesystem.EnsureDirectoryExist(name)
 		save_authority(path.Join(name, "ca.yml"), authority)
 
-		ensureDir(path.Join(name, "csr"))
+		filesystem.EnsureDirectoryExist(path.Join(name, "csr"))
 		filesystem.CopyFile(path.Join(".", "csr", fmt.Sprintf("%s.csr", id)), path.Join(".", name, "csr", "ca.csr"))
 
-		ensureDir(path.Join(name, "certs"))
+		filesystem.EnsureDirectoryExist(path.Join(name, "certs"))
 		filesystem.CopyFile(path.Join(".", "certs", fmt.Sprintf("%s.pem", id)), path.Join(".", name, "certs", "ca.pem"))
 
 		settings.Subordinates, _ = certauth.AddSubordinate(settings, name, serial)

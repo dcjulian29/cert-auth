@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 )
@@ -54,7 +55,7 @@ func initialize_authority() {
 	}
 
 	file := path.Join(folderPath, cfgFile)
-	if fileExists(file) {
+	if filesystem.FileExists(file) {
 		fmt.Fprintf(os.Stderr, "\033[1;36mUsing config file: %s\033[0m\n", file)
 		settings = load_authority(file)
 	}
@@ -80,7 +81,7 @@ func save_authority(filePath string, authority certauth.Authority) {
 	yaml, err := yaml.Marshal(&authority)
 	cobra.CheckErr(err)
 
-	if fileExists(filePath) {
+	if filesystem.FileExists(filePath) {
 		os.Remove(filePath)
 	}
 

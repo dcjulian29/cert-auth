@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +39,7 @@ var crlCmd = &cobra.Command{
 			crl_update("", settings)
 		}
 
-		if fileExists("ca.crl") {
+		if filesystem.FileExists("ca.crl") {
 			executeExternalProgram("openssl", []string{
 				"crl",
 				fmt.Sprintf("-in %s", "ca.crl"),

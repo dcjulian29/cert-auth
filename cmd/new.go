@@ -58,7 +58,7 @@ var (
 
 				folderPath = path.Join(folderPath, name)
 
-				if fileExists(fmt.Sprintf("./%s/ca.yml", name)) {
+				if filesystem.FileExists(fmt.Sprintf("./%s/ca.yml", name)) {
 					cobra.CheckErr(fmt.Errorf("'%s' is already a subordinate authority", name))
 				} else {
 					info("Creating new subordinate authority folder ...")
@@ -70,7 +70,7 @@ var (
 			info("Creating certificate authority directories...")
 
 			for _, folder := range []string{"certs", "csr", "db", "private"} {
-				ensureDir(folder)
+				filesystem.EnsureDirectoryExist(folder)
 			}
 
 			info("Initalizing certificate authority...")
@@ -559,7 +559,7 @@ func editor_config() {
 	contents.WriteString("[{*.pem,*.crl,*.csr,*.key}]\n")
 	contents.WriteString("insert_final_newline = false\n")
 
-	if !fileExists(".editorconfig") {
+	if !filesystem.FileExists(".editorconfig") {
 		touchFile(".editorconfig", contents.Bytes())
 	}
 }
@@ -578,7 +578,7 @@ func git_attributes() {
 	contents.WriteString("*.pfx   binary\n")
 	contents.WriteString("*.key   text\n")
 
-	if !fileExists(".gitattributes") {
+	if !filesystem.FileExists(".gitattributes") {
 		touchFile(".gitattributes", contents.Bytes())
 	}
 }
@@ -588,7 +588,7 @@ func git_ignore() {
 
 	contents.WriteString("/**/private/*\n")
 
-	if !fileExists(".gitignore") {
+	if !filesystem.FileExists(".gitignore") {
 		touchFile(".gitignore", contents.Bytes())
 	}
 }

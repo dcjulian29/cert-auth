@@ -75,29 +75,10 @@ func askPassword(filePath string) string {
 	return string(p)
 }
 
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return false
-	}
-
-	return info.IsDir()
-}
-
 func ensureAuthorityDirectory() {
 	if err := os.Chdir(folderPath); err != nil {
 		cobra.CheckErr(err)
 	}
-}
-
-func ensureDir(dirPath string) error {
-	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
-		if err := os.MkdirAll(dirPath, 0755); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func executeExternalProgram(program string, params ...string) error {
@@ -134,15 +115,6 @@ func findFiles(dirPath, extension string) []string {
 	})
 
 	return files
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-
-	return !info.IsDir()
 }
 
 func getRandomId(length int) string {
