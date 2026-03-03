@@ -448,7 +448,7 @@ func requests_show(id string) {
 	} else {
 		var requests []CertRequest
 
-		files := findFiles("csr", ".csr")
+		files, _ := filesystem.FindFilesByExtension("csr", ".csr")
 
 		for _, file := range files {
 			requests = append(requests, load_request(file))

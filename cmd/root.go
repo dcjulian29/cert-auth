@@ -19,9 +19,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"io/fs"
 	"os"
-	"path/filepath"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
 	"github.com/dcjulian29/go-toolbox/color"
@@ -78,24 +76,6 @@ func ensureAuthorityDirectory() {
 	if err := os.Chdir(folderPath); err != nil {
 		cobra.CheckErr(err)
 	}
-}
-
-func findFiles(dirPath, extension string) []string {
-	var files []string
-
-	filepath.WalkDir(dirPath, func(f string, d fs.DirEntry, e error) error {
-		if e != nil {
-			return e
-		}
-
-		if filepath.Ext(d.Name()) == extension {
-			files = append(files, f)
-		}
-
-		return nil
-	})
-
-	return files
 }
 
 func getRandomId(length int) string {
