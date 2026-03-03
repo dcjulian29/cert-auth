@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
 
@@ -59,6 +60,10 @@ var (
 
 				if fileExists(fmt.Sprintf("./%s/ca.yml", name)) {
 					cobra.CheckErr(fmt.Errorf("'%s' is already a subordinate authority", name))
+				} else {
+					info("Creating new subordinate authority folder ...")
+					filesystem.EnsureDirectoryExist(name)
+					os.Chdir(name)
 				}
 			}
 
