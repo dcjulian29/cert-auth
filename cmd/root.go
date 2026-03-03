@@ -33,10 +33,9 @@ import (
 )
 
 var (
-	cfgFile          string
-	folderPath       string
-	workingDirectory string
-	settings         certauth.Authority
+	cfgFile    string
+	folderPath string
+	settings   certauth.Authority
 
 	rootCmd = &cobra.Command{
 		Use:   "cert-auth",
@@ -46,8 +45,6 @@ var (
 )
 
 func Execute() {
-	workingDirectory, _ = os.Getwd()
-
 	rootCmd.AddCommand(
 		extension.NewVersionCobraCmd(
 			extension.WithUpgradeNotice("dcjulian29", "cert-auth"),
@@ -111,10 +108,8 @@ func dirExists(path string) bool {
 }
 
 func ensureAuthorityDirectory() {
-	if workingDirectory != folderPath {
-		if err := os.Chdir(folderPath); err != nil {
-			cobra.CheckErr(err)
-		}
+	if err := os.Chdir(folderPath); err != nil {
+		cobra.CheckErr(err)
 	}
 }
 
@@ -128,25 +123,13 @@ func ensureDir(dirPath string) error {
 	return nil
 }
 
-func ensureWorkingDirectoryAndExit() {
-	if workingDirectory != folderPath {
-		if err := os.Chdir(workingDirectory); err != nil {
-			cobra.CheckErr(err)
-		}
-	}
-
-	os.Exit(0)
-}
-
-func executeExternalProgram(program string, params ...string) {
+func executeExternalProgram(program string, params ...string) error {
 	cmd := exec.Command(program, params...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 
-	if err := cmd.Run(); err != nil {
-		ensureWorkingDirectoryAndExit()
-	}
+	return cmd.Run()
 }
 
 func executeExternalProgramCapture(program string, params ...string) string {

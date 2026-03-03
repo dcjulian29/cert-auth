@@ -62,16 +62,6 @@ var (
 				}
 			}
 
-			if workingDirectory != folderPath {
-				if _, err := os.Stat(folderPath); os.IsNotExist(err) {
-					info("Creating certificate authority folder...")
-
-					cobra.CheckErr(ensureDir(folderPath))
-				}
-
-				ensureAuthorityDirectory()
-			}
-
 			info("Creating certificate authority directories...")
 
 			for _, folder := range []string{"certs", "csr", "db", "private"} {
