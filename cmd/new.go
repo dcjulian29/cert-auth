@@ -178,7 +178,7 @@ var (
 
 				id, serial := import_authority(fmt.Sprintf("./%s/csr/ca.csr", settings.Name), "")
 
-				copyFile(fmt.Sprintf("./certs/%s.pem", id), fmt.Sprintf("./%s/certs/ca.pem", settings.Name))
+				filesystem.CopyFile(fmt.Sprintf("./certs/%s.pem", id), fmt.Sprintf("./%s/certs/ca.pem", settings.Name))
 
 				settings.Serial = serial
 

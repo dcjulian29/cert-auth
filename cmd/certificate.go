@@ -24,6 +24,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
 
@@ -332,7 +333,7 @@ func certificate_request_import(filePath string) {
 
 	fmt.Printf("    ...    %s\n", filePath)
 
-	copyFile(filePath, csrName)
+	filesystem.CopyFile(filePath, csrName)
 
 	fmt.Printf("    ...    %s\n", csrName)
 }

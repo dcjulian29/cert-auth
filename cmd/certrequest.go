@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
 
@@ -89,7 +90,7 @@ func import_request(filePath string) string {
 
 	csr := path.Join("csr", fmt.Sprintf("%s.csr", id))
 
-	copyFile(filePath, csr)
+	filesystem.CopyFile(filePath, csr)
 
 	return id
 }

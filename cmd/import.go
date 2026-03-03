@@ -21,6 +21,7 @@ import (
 	"path"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
 
@@ -72,10 +73,10 @@ var importCmd = &cobra.Command{
 		save_authority(path.Join(name, "ca.yml"), authority)
 
 		ensureDir(path.Join(name, "csr"))
-		copyFile(path.Join(".", "csr", fmt.Sprintf("%s.csr", id)), path.Join(".", name, "csr", "ca.csr"))
+		filesystem.CopyFile(path.Join(".", "csr", fmt.Sprintf("%s.csr", id)), path.Join(".", name, "csr", "ca.csr"))
 
 		ensureDir(path.Join(name, "certs"))
-		copyFile(path.Join(".", "certs", fmt.Sprintf("%s.pem", id)), path.Join(".", name, "certs", "ca.pem"))
+		filesystem.CopyFile(path.Join(".", "certs", fmt.Sprintf("%s.pem", id)), path.Join(".", name, "certs", "ca.pem"))
 
 		settings.Subordinates, _ = certauth.AddSubordinate(settings, name, serial)
 
