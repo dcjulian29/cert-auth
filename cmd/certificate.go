@@ -41,9 +41,6 @@ var (
 				cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
 			}
 		},
-		PostRun: func(cmd *cobra.Command, args []string) {
-			ensureWorkingDirectoryAndExit()
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			id := ""
 
@@ -79,9 +76,6 @@ var (
 				cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
 			}
 		},
-		PostRun: func(cmd *cobra.Command, args []string) {
-			ensureWorkingDirectoryAndExit()
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			days, _ := cmd.Flags().GetInt("days")
 
@@ -115,9 +109,6 @@ var (
 			if len(settings.Name) == 0 {
 				cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
 			}
-		},
-		PostRun: func(cmd *cobra.Command, args []string) {
-			ensureWorkingDirectoryAndExit()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			days, _ := cmd.Flags().GetInt("days")
@@ -163,9 +154,6 @@ var (
 			if len(settings.Name) == 0 {
 				cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
 			}
-		},
-		PostRun: func(cmd *cobra.Command, args []string) {
-			ensureWorkingDirectoryAndExit()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			name, _ := cmd.Flags().GetString("name")
@@ -220,9 +208,6 @@ var (
 				cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
 			}
 		},
-		PostRun: func(cmd *cobra.Command, args []string) {
-			ensureWorkingDirectoryAndExit()
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			filePath := path.Join("certs", fmt.Sprintf("%s.pem", args[0]))
 
@@ -238,9 +223,6 @@ var (
 			if len(settings.Name) == 0 {
 				cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
 			}
-		},
-		PostRun: func(cmd *cobra.Command, args []string) {
-			ensureWorkingDirectoryAndExit()
 		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {

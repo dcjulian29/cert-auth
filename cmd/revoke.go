@@ -41,9 +41,6 @@ var revokeCmd = &cobra.Command{
 
 		ensureAuthorityDirectory()
 	},
-	PostRun: func(cmd *cobra.Command, args []string) {
-		ensureWorkingDirectoryAndExit()
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		name, _ := cmd.Flags().GetString("name")
 

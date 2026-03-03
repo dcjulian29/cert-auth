@@ -41,9 +41,6 @@ var publishCmd = &cobra.Command{
 
 		ensureAuthorityDirectory()
 	},
-	PostRun: func(cmd *cobra.Command, args []string) {
-		ensureWorkingDirectoryAndExit()
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		dest, _ := cmd.Flags().GetString("destination")
 

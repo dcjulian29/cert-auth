@@ -47,9 +47,6 @@ var (
 				}
 			}
 		},
-		PostRun: func(cmd *cobra.Command, args []string) {
-			ensureWorkingDirectoryAndExit()
-		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if s, _ := cmd.Flags().GetBool("subordinate"); s {
 				name, _ := cmd.Flags().GetString("name")

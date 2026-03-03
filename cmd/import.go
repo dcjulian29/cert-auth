@@ -39,9 +39,6 @@ var importCmd = &cobra.Command{
 
 		ensureAuthorityDirectory()
 	},
-	PostRun: func(cmd *cobra.Command, args []string) {
-		ensureWorkingDirectoryAndExit()
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		file, _ := cmd.Flags().GetString("request")
 		name, _ := cmd.Flags().GetString("name")

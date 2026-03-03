@@ -30,9 +30,6 @@ var updateCmd = &cobra.Command{
 			cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
 		}
 	},
-	PostRun: func(cmd *cobra.Command, args []string) {
-		ensureWorkingDirectoryAndExit()
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		update_authority("")
 	},

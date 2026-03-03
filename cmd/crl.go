@@ -33,9 +33,6 @@ var crlCmd = &cobra.Command{
 
 		ensureAuthorityDirectory()
 	},
-	PostRun: func(cmd *cobra.Command, args []string) {
-		ensureWorkingDirectoryAndExit()
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if u, _ := cmd.Flags().GetBool("update"); u {
 			crl_update("", settings)

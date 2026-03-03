@@ -32,9 +32,6 @@ var ocspCmd = &cobra.Command{
 			cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
 		}
 	},
-	PostRun: func(cmd *cobra.Command, args []string) {
-		ensureWorkingDirectoryAndExit()
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if settings.OCSP {
 			if u, _ := cmd.Flags().GetBool("update"); u {
@@ -61,9 +58,6 @@ var ocspServerCmd = &cobra.Command{
 		}
 
 		ensureAuthorityDirectory()
-	},
-	PostRun: func(cmd *cobra.Command, args []string) {
-		ensureWorkingDirectoryAndExit()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if settings.OCSP {
