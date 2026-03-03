@@ -35,8 +35,6 @@ var removeCmd = &cobra.Command{
 		if settings.Type != "root" {
 			cobra.CheckErr(fmt.Errorf("'%s' is not a root certificate authority", folderPath))
 		}
-
-		ensureAuthorityDirectory()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		name, _ := cmd.Flags().GetString("name")

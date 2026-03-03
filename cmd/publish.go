@@ -40,8 +40,6 @@ var publishCmd = &cobra.Command{
 		if settings.Type != "root" {
 			cobra.CheckErr(errors.New("authorities can only be published from the root authority"))
 		}
-
-		ensureAuthorityDirectory()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		dest, _ := cmd.Flags().GetString("destination")

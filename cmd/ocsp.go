@@ -57,8 +57,6 @@ var ocspServerCmd = &cobra.Command{
 		if len(settings.Name) == 0 {
 			cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
 		}
-
-		ensureAuthorityDirectory()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if settings.OCSP {

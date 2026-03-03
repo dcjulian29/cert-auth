@@ -72,12 +72,6 @@ func askPassword(filePath string) string {
 	return string(p)
 }
 
-func ensureAuthorityDirectory() {
-	if err := os.Chdir(folderPath); err != nil {
-		cobra.CheckErr(err)
-	}
-}
-
 func getRandomId(length int) string {
 	bytes := make([]byte, length)
 	_, err := rand.Read(bytes)
