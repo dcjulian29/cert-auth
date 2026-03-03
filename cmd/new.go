@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
@@ -62,19 +63,19 @@ var (
 				if filesystem.FileExists(fmt.Sprintf("./%s/ca.yml", name)) {
 					cobra.CheckErr(fmt.Errorf("'%s' is already a subordinate authority", name))
 				} else {
-					info("Creating new subordinate authority folder ...")
+					color.Info("Creating new subordinate authority folder ...")
 					filesystem.EnsureDirectoryExist(name)
 					os.Chdir(name)
 				}
 			}
 
-			info("Creating certificate authority directories...")
+			color.Info("Creating certificate authority directories...")
 
 			for _, folder := range []string{"certs", "csr", "db", "private"} {
 				filesystem.EnsureDirectoryExist(folder)
 			}
 
-			info("Initalizing certificate authority...")
+			color.Info("Initalizing certificate authority...")
 
 			strictPolicy, _ = cmd.Flags().GetBool("strict")
 
@@ -130,11 +131,11 @@ var (
 
 			cnf_ca()
 
-			info("Generating the certificate authority private key...")
+			color.Info("Generating the certificate authority private key...")
 
 			new_private_key("private/ca.key", privateKeyType, "")
 
-			info("Generating the certificate authority request...")
+			color.Info("Generating the certificate authority request...")
 
 			execute.ExternalProgram("openssl", []string{
 				"req",
@@ -151,7 +152,7 @@ var (
 			var serial string
 
 			if settings.Type == "root" {
-				info("Generating the certificate for this authority...")
+				color.Info("Generating the certificate for this authority...")
 
 				execute.ExternalProgram("openssl", []string{
 					"ca",
@@ -187,7 +188,7 @@ var (
 
 				save_authority("ca.yml", rootAuth) // root CA configuration
 
-				info("Writing subordinate authority chain certificate...")
+				color.Info("Writing subordinate authority chain certificate...")
 
 				root, err := os.ReadFile("./certs/ca.pem")
 				cobra.CheckErr(err)
@@ -203,7 +204,7 @@ var (
 				}
 			}
 
-			info("Writing authority configuration file...")
+			color.Info("Writing authority configuration file...")
 
 			save_authority("ca.yml", settings)
 
@@ -220,13 +221,13 @@ var (
 			switch settings.Type {
 			case "root":
 				if s, _ := cmd.Flags().GetBool("scm"); s {
-					info("Adding source control supporting files...")
+					color.Info("Adding source control supporting files...")
 					git_ignore()
 					git_attributes()
 					editor_config()
 				}
 
-				info(`Creation of a root certificate authority complete...
+				color.Info(`Creation of a root certificate authority complete...
 
 ~~~~~
 A root certificate authority should only have subordinate authorities and not
@@ -234,7 +235,7 @@ used to create server or user certificates so you should create at least one
 subordinate certificate authority to sign certificates within this authority...`)
 
 			case "subordinate":
-				info(`Creation of a subordinate certificate authority complete...
+				color.Info(`Creation of a subordinate certificate authority complete...
 
 ~~~~~
 This subordinate authority can only be used to sign certificates within this authority...`)
@@ -664,7 +665,7 @@ func new_private_key(filePath string, keyType KeyType, pass string) {
 func ocsp_setup() {
 	var contents bytes.Buffer
 
-	info("Initializing OCSP configuration for this authority...")
+	color.Info("Initializing OCSP configuration for this authority...")
 
 	contents.WriteString("[req]\n")
 	contents.WriteString("default_bits            = 2048\n")
@@ -683,7 +684,7 @@ func ocsp_setup() {
 
 	ocsp_reset()
 
-	info("Generating the OCSP certificate request...")
+	color.Info("Generating the OCSP certificate request...")
 
 	execute.ExternalProgram("openssl", []string{
 		"req",
@@ -701,7 +702,7 @@ func ocsp_setup() {
 func timestamp_setup() {
 	var contents bytes.Buffer
 
-	info("Initializing timestamp configuration for this authority...")
+	color.Info("Initializing timestamp configuration for this authority...")
 
 	contents.WriteString("[req]\n")
 	contents.WriteString("default_bits            = 2048\n")
@@ -720,7 +721,7 @@ func timestamp_setup() {
 
 	timestamp_reset()
 
-	info("Generating the timestamp certificate request...")
+	color.Info("Generating the timestamp certificate request...")
 
 	execute.ExternalProgram("openssl", []string{
 		"req",

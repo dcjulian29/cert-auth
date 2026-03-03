@@ -20,6 +20,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/spf13/cobra"
 )
@@ -95,7 +96,7 @@ func init() {
 }
 
 func ocsp_reset() {
-	info("Generating the OCSP private key for this authority...")
+	color.Info("Generating the OCSP private key for this authority...")
 
 	execute.ExternalProgram("openssl", []string{
 		"genrsa",
@@ -172,7 +173,7 @@ func ocsp_update(password string) {
 
 	// TODO: revoke existing OCSP certificates
 
-	info("Generating the OCSP certificate for this authority...")
+	color.Info("Generating the OCSP certificate for this authority...")
 
 	execute.ExternalProgram("openssl", []string{
 		"ca",

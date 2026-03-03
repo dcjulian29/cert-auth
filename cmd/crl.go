@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
@@ -60,7 +61,7 @@ func crl_update(password string, authority certauth.Authority) {
 		password = askPassword("private/ca.key")
 	}
 
-	info("Updating the certificate revocation list...")
+	color.Info("Updating the certificate revocation list...")
 
 	execute.ExternalProgram("openssl", []string{
 		"ca",

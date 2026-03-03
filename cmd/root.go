@@ -79,7 +79,3 @@ func getRandomId(length int) string {
 
 	return hex.EncodeToString(bytes)
 }
-
-func info(message string) {
-	fmt.Printf("\n\033[1;36m%s\033[0m\n", message)
-}

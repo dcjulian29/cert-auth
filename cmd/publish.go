@@ -23,6 +23,7 @@ import (
 	"path"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
@@ -69,7 +70,7 @@ var publishCmd = &cobra.Command{
 			}
 		}
 
-		info(fmt.Sprintf("~~~~~~\nThis certificate authority has been published to '%s'.", dest))
+		color.Info(fmt.Sprintf("~~~~~~\nThis certificate authority has been published to '%s'.", dest))
 	},
 }
 
@@ -110,14 +111,14 @@ func is_mounted(id string, name string) bool {
 }
 
 func publish_files(authority certauth.Authority, dest string) {
-	info(fmt.Sprintf("Authority '%s' is mounted. Proceeding to publish...", authority.Name))
+	color.Info(fmt.Sprintf("Authority '%s' is mounted. Proceeding to publish...", authority.Name))
 
 	if authority.Type != "root" {
 		err := os.Chdir(authority.Name)
 		cobra.CheckErr(err)
 	}
 
-	info(fmt.Sprintf(">>>---------------- '%s' Certificate Authority", authority.Name))
+	color.Info(fmt.Sprintf(">>>---------------- '%s' Certificate Authority", authority.Name))
 
 	if authority.Type == "imported" {
 		fmt.Printf("\033[1;36mThis is an imported authority.\033[0m\n")

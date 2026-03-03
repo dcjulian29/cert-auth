@@ -21,6 +21,7 @@ import (
 	"path"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
 )
@@ -80,7 +81,7 @@ var importCmd = &cobra.Command{
 
 		save_authority("ca.yml", settings) // root CA configuration
 
-		info("Writing subordinate authority chain certificate...")
+		color.Info("Writing subordinate authority chain certificate...")
 
 		root, err := os.ReadFile("./certs/ca.pem")
 		cobra.CheckErr(err)

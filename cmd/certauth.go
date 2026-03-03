@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
@@ -32,7 +33,7 @@ import (
 func import_authority(filePath, pass string) (string, string) {
 	id := import_request(filePath)
 
-	info("Using root authority to sign the certificate for this authority...")
+	color.Info("Using root authority to sign the certificate for this authority...")
 
 	sign_request(id, pass, 1825)
 

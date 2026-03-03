@@ -24,6 +24,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
@@ -410,7 +411,7 @@ func certificate_validate(filepath string, bundle bool) {
 	if bundle {
 		ca = path.Join("certs", "ca-bundle.pem")
 
-		info("Downloading Mozilla's ca-bundle.pem...")
+		color.Info("Downloading Mozilla's ca-bundle.pem...")
 
 		resp, err := http.Get("https://curl.se/ca/cacert.pem")
 		cobra.CheckErr(err)

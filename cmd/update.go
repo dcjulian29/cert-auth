@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/spf13/cobra"
 )
@@ -45,7 +46,7 @@ func update_authority(password string) {
 		password = askPassword("private/ca.key")
 	}
 
-	info("Updating the certificate authority database...")
+	color.Info("Updating the certificate authority database...")
 
 	execute.ExternalProgram("openssl", []string{
 		"ca",

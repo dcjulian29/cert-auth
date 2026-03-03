@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/spf13/cobra"
 )
@@ -52,7 +53,7 @@ func init() {
 }
 
 func timestamp_reset() {
-	info("Generating the timestamp private key for this authority...")
+	color.Info("Generating the timestamp private key for this authority...")
 
 	execute.ExternalProgram("openssl", []string{
 		"genrsa",
@@ -69,7 +70,7 @@ func timestamp_update(password string) {
 
 	// TODO: revoke existing Timestamp certificates
 
-	info("Generating the timestamp certificate for this authority...")
+	color.Info("Generating the timestamp certificate for this authority...")
 
 	execute.ExternalProgram("openssl", []string{
 		"ca",
