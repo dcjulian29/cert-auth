@@ -27,27 +27,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func addSubordinate(authority certauth.Authority, name, serial string) []certauth.Subordinate {
-	subordinate := certauth.Subordinate{Name: name, Id: serial}
-	newsub := []certauth.Subordinate{}
-	found := false
-
-	for _, s := range authority.Subordinates {
-		if s.Name == subordinate.Name {
-			newsub = append(newsub, subordinate)
-			found = true
-		} else {
-			newsub = append(newsub, s)
-		}
-	}
-
-	if !found {
-		newsub = append(newsub, subordinate)
-	}
-
-	return newsub
-}
-
 func import_authority(filePath, pass string) (string, string) {
 	id := import_request(filePath)
 

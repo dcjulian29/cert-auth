@@ -80,7 +80,7 @@ var importCmd = &cobra.Command{
 		ensureDir(path.Join(name, "certs"))
 		copyFile(path.Join(".", "certs", fmt.Sprintf("%s.pem", id)), path.Join(".", name, "certs", "ca.pem"))
 
-		settings.Subordinates = addSubordinate(settings, name, serial)
+		settings.Subordinates, _ = certauth.AddSubordinate(settings, name, serial)
 
 		save_authority("ca.yml", settings) // root CA configuration
 

@@ -190,7 +190,7 @@ var (
 
 				settings.Serial = serial
 
-				rootAuth.Subordinates = addSubordinate(rootAuth, settings.Name, serial)
+				rootAuth.Subordinates, _ = certauth.AddSubordinate(rootAuth, settings.Name, serial)
 
 				save_authority("ca.yml", rootAuth) // root CA configuration
 

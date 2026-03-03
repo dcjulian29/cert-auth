@@ -56,7 +56,7 @@ var revokeCmd = &cobra.Command{
 				pass := askPassword("private/ca.key")
 				revoke_authority(s, revokeReason, pass)
 
-				settings.Subordinates = addSubordinate(settings, s.Name, "~REVOKED~")
+				settings.Subordinates, _ = certauth.AddSubordinate(settings, s.Name, "~REVOKED~")
 
 				save_authority("ca.yml", settings)
 

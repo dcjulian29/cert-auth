@@ -15,6 +15,10 @@ limitations under the License.
 */
 package certauth
 
+import (
+	"fmt"
+)
+
 type Authority struct {
 	Type         string        `yaml:"type"`
 	Public       bool          `yaml:"public_access"`
@@ -32,4 +36,27 @@ type Authority struct {
 type Subordinate struct {
 	Id   string `yaml:"id"`
 	Name string `yaml:"name"`
+}
+
+func AddSubordinate(authority Authority, name, serial string) ([]Subordinate, error) {
+	subordinate := Subordinate{Name: name, Id: serial}
+	newsub := []Subordinate{}
+	found := false
+
+	for _, s := range authority.Subordinates {
+		if s.Name == subordinate.Name {
+			newsub = append(newsub, subordinate)
+			found = true
+		} else {
+			newsub = append(newsub, s)
+		}
+	}
+
+	if !found {
+		newsub = append(newsub, subordinate)
+
+		return newsub, nil
+	}
+
+	return nil, fmt.Errorf("subordinate '%s' already exist", name)
 }
