@@ -22,32 +22,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/dcjulian29/cert-auth/internal/certauth"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 )
 
-type CertAuth struct {
-	Type         string        `yaml:"type"`
-	Public       bool          `yaml:"public_access"`
-	Name         string        `yaml:"authority_name"`
-	Domain       string        `yaml:"domain"`
-	Country      string        `yaml:"country"`
-	Organization string        `yaml:"organization"`
-	CommonName   string        `yaml:"common_name"`
-	OCSP         bool          `yaml:"ocsp"`
-	TimeStamp    bool          `yaml:"timestamp"`
-	Serial       string        `yaml:"serial"`
-	Subordinates []Subordinate `yaml:"subordinates"`
-}
-
-type Subordinate struct {
-	Id   string `yaml:"id"`
-	Name string `yaml:"name"`
-}
-
-func addSubordinate(authority CertAuth, name, serial string) []Subordinate {
-	subordinate := Subordinate{Name: name, Id: serial}
-	newsub := []Subordinate{}
+func addSubordinate(authority certauth.Authority, name, serial string) []certauth.Subordinate {
+	subordinate := certauth.Subordinate{Name: name, Id: serial}
+	newsub := []certauth.Subordinate{}
 	found := false
 
 	for _, s := range authority.Subordinates {
@@ -99,8 +81,8 @@ func initialize_authority() {
 	}
 }
 
-func load_authority(filePath string) CertAuth {
-	var authority_settings CertAuth
+func load_authority(filePath string) certauth.Authority {
+	var authority_settings certauth.Authority
 
 	file, err := os.ReadFile(filePath)
 	cobra.CheckErr(err)
@@ -109,13 +91,13 @@ func load_authority(filePath string) CertAuth {
 	cobra.CheckErr(err)
 
 	if authority_settings.Type != "root" {
-		authority_settings.Subordinates = []Subordinate{}
+		authority_settings.Subordinates = []certauth.Subordinate{}
 	}
 
 	return authority_settings
 }
 
-func save_authority(filePath string, authority CertAuth) {
+func save_authority(filePath string, authority certauth.Authority) {
 	yaml, err := yaml.Marshal(&authority)
 	cobra.CheckErr(err)
 

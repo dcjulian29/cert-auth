@@ -22,6 +22,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/dcjulian29/cert-auth/internal/certauth"
 	"github.com/spf13/cobra"
 )
 
@@ -29,7 +30,7 @@ var (
 	strictPolicy   bool
 	keyPass        string
 	privateKeyType KeyType
-	rootAuth       CertAuth
+	rootAuth       certauth.Authority
 
 	newCmd = &cobra.Command{
 		Use:   "new",
@@ -86,7 +87,7 @@ var (
 
 			if s, _ := cmd.Flags().GetBool("subordinate"); s {
 				rootAuth = settings
-				settings = CertAuth{Type: "subordinate"}
+				settings = certauth.Authority{Type: "subordinate"}
 			} else {
 				settings.Type = "root"
 			}

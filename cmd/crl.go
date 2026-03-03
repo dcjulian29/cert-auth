@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/dcjulian29/cert-auth/internal/certauth"
 	"github.com/spf13/cobra"
 )
 
@@ -57,7 +58,7 @@ func init() {
 	crlCmd.Flags().BoolP("update", "u", false, "update the Certificate Revocation List")
 }
 
-func crl_update(password string, authority CertAuth) {
+func crl_update(password string, authority certauth.Authority) {
 	if len(password) == 0 {
 		password = askPassword("private/ca.key")
 	}

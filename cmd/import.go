@@ -20,6 +20,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/dcjulian29/cert-auth/internal/certauth"
 	"github.com/spf13/cobra"
 )
 
@@ -56,7 +57,7 @@ var importCmd = &cobra.Command{
 		request := load_request(file)
 		id, serial := import_authority(file, "")
 
-		authority := CertAuth{
+		authority := certauth.Authority{
 			Type:         "imported",
 			Public:       false,
 			Name:         name,
@@ -67,7 +68,7 @@ var importCmd = &cobra.Command{
 			OCSP:         false,
 			TimeStamp:    false,
 			Serial:       serial,
-			Subordinates: []Subordinate{},
+			Subordinates: []certauth.Subordinate{},
 		}
 
 		ensureDir(name)

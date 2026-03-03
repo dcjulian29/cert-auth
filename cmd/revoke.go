@@ -20,6 +20,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/dcjulian29/cert-auth/internal/certauth"
 	"github.com/spf13/cobra"
 )
 
@@ -76,7 +77,7 @@ func init() {
 	revokeCmd.MarkFlagRequired("name")
 }
 
-func revoke_authority(subordinate Subordinate, reason RevokeType, pass string) {
+func revoke_authority(subordinate certauth.Subordinate, reason RevokeType, pass string) {
 	if len(subordinate.Id) > 0 {
 		cert := path.Join("certs", fmt.Sprintf("%s.pem", subordinate.Id))
 		if fileExists(cert) {

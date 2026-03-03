@@ -22,6 +22,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/dcjulian29/cert-auth/internal/certauth"
 	"github.com/spf13/cobra"
 )
 
@@ -111,7 +112,7 @@ func is_mounted(id string, name string) bool {
 	}
 }
 
-func publish_files(authority CertAuth, dest string) {
+func publish_files(authority certauth.Authority, dest string) {
 	info(fmt.Sprintf("Authority '%s' is mounted. Proceeding to publish...", authority.Name))
 
 	if authority.Type != "root" {

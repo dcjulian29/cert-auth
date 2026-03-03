@@ -25,6 +25,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/dcjulian29/cert-auth/internal/certauth"
 	"github.com/spf13/cobra"
 	"go.szostok.io/version/extension"
 	"golang.org/x/term"
@@ -34,7 +35,7 @@ var (
 	cfgFile          string
 	folderPath       string
 	workingDirectory string
-	settings         CertAuth
+	settings         certauth.Authority
 
 	rootCmd = &cobra.Command{
 		Use:   "cert-auth",
