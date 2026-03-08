@@ -13,16 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package cmd
+package shared
 
 import "errors"
 
 type KeyType string
 
 const (
-	edwards  KeyType = "edwards"
-	elliptic KeyType = "elliptic"
-	rsa      KeyType = "rsa"
+	DefaultKeyType KeyType = Elliptic
+	Edwards        KeyType = "edwards"
+	Elliptic       KeyType = "elliptic"
+	RSA            KeyType = "rsa"
 )
 
 func (e *KeyType) String() string {
