@@ -13,31 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package cmd
+package shared
 
-import "errors"
+import (
+	"fmt"
+	"os"
+	"path/filepath"
 
-type CertificateType string
-
-const (
-	certificate_type_server CertificateType = "server"
-	certificate_type_client CertificateType = "client"
+	"golang.org/x/term"
 )
 
-func (e *CertificateType) String() string {
-	return string(*e)
-}
+func AskPassword(filePath string) (string, error) {
+	pwd, _ := os.Getwd()
+	filePath = filepath.Join(pwd, filePath)
 
-func (e *CertificateType) Set(v string) error {
-	switch v {
-	case "server", "client":
-		*e = CertificateType(v)
-		return nil
-	default:
-		return errors.New(`must be one of "server", "client"`)
+	fmt.Printf("\033[1;35mEnter pass phrase for %s:\033[0m ", filePath)
+
+	p, err := term.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
+
+	if err != nil {
+		return "", nil
 	}
-}
 
-func (e *CertificateType) Type() string {
-	return "CertificateType"
+	return string(p), nil
 }

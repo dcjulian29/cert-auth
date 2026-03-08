@@ -13,34 +13,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package cmd
+package shared
 
 import (
 	"bufio"
 	"os"
-	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/spf13/cobra"
 )
 
-type CertificateData struct {
-	SerialNumber      string
-	DistinguishedName string
-	Status            string
-	ExpirationDate    time.Time
-	RevocationDate    time.Time
-	RevocationReason  RevokeType
-}
-
-func load_certificate_db(revoked bool) []CertificateData {
+func LoadCertificateDB(revoked bool) ([]CertificateData, error) {
 	var results []CertificateData
-	p := path.Join("db", "index")
+	p := filepath.Join("db", "index")
 	r, _ := regexp.Compile(`(\w)\s+(\w+)(\s+\w+,\w+\s+|\s+)(\w+)\s+(\w+)\s(.+)`)
 	f, err := os.Open(p)
-	cobra.CheckErr(err)
+	if err != nil {
+		return []CertificateData{}, err
+	}
 
 	defer f.Close()
 
@@ -71,7 +62,9 @@ func load_certificate_db(revoked bool) []CertificateData {
 		}
 
 		t, err := time.Parse("060102150405Z", m[2])
-		cobra.CheckErr(err)
+		if err != nil {
+			return []CertificateData{}, err
+		}
 
 		c.ExpirationDate = t
 
@@ -80,7 +73,9 @@ func load_certificate_db(revoked bool) []CertificateData {
 		if len(r) > 0 {
 			s := strings.Split(r, ",")
 			t, err := time.Parse("060102150405Z", s[0])
-			cobra.CheckErr(err)
+			if err != nil {
+				return []CertificateData{}, err
+			}
 			c.RevocationDate = t
 			c.RevocationReason = RevokeType(s[1])
 		}
@@ -94,5 +89,5 @@ func load_certificate_db(revoked bool) []CertificateData {
 		}
 	}
 
-	return results
+	return results, nil
 }

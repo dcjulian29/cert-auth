@@ -1,5 +1,5 @@
 /*
-Copyright © 2026 Julian Easterling
+Copyright © 2026 Julian Easterling <julian@julianscorner.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,21 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package cmd
+package shared
 
 import "errors"
 
 type RevokeType string
 
 const (
-	unspecified          RevokeType = "unspecified"
-	keyCompromise        RevokeType = "keyCompromise"
+	Unspecified          RevokeType = "unspecified"
+	KeyCompromise        RevokeType = "keyCompromise"
 	CACompromise         RevokeType = "CACompromise"
-	affiliationChanged   RevokeType = "affiliationChanged"
-	superseded           RevokeType = "superseded"
-	cessationOfOperation RevokeType = "cessationOfOperation"
-	certificateHold      RevokeType = "certificateHold"
-	removeFromCRL        RevokeType = "removeFromCRL"
+	AffiliationChanged   RevokeType = "affiliationChanged"
+	Superseded           RevokeType = "superseded"
+	CessationOfOperation RevokeType = "cessationOfOperation"
+	CertificateHold      RevokeType = "certificateHold"
+	RemoveFromCRL        RevokeType = "removeFromCRL"
 )
 
 func (e *RevokeType) String() string {
