@@ -13,42 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package cmd
+package shared
 
 import (
 	"fmt"
 
 	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
-	"github.com/spf13/cobra"
 )
 
-var updateCmd = &cobra.Command{
-	Use:   "update",
-	Short: "Update the certificate authority database files.",
-	Long:  "Update the certificate authority database files.",
-	PreRun: func(cmd *cobra.Command, args []string) {
-		if len(settings.Name) == 0 {
-			cobra.CheckErr(fmt.Errorf("'%s' is not a certificate authority", folderPath))
-		}
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		update_authority("")
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(updateCmd)
-}
-
-func update_authority(password string) {
+func UpdateAuthority(password string) error {
 	if len(password) == 0 {
-		password = askPassword("private/ca.key")
+		pass, err := AskPrivateKeyPassword()
+		if err != nil {
+			return err
+		}
+
+		password = pass
 	}
 
 	color.Info("Updating the certificate authority database...")
 
-	execute.ExternalProgram("openssl", []string{
+	return execute.ExternalProgram("openssl", []string{
 		"ca",
 		fmt.Sprintf("-config %s", "ca.cnf"),
 		"-updatedb",

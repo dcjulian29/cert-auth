@@ -13,14 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package certauth
-
-import (
-	"fmt"
-)
+package shared
 
 type Authority struct {
-	Type         string        `yaml:"type"`
+	Type         AuthorityType `yaml:"type"`
 	Public       bool          `yaml:"public_access"`
 	Name         string        `yaml:"authority_name"`
 	Domain       string        `yaml:"domain"`
@@ -36,27 +32,4 @@ type Authority struct {
 type Subordinate struct {
 	Id   string `yaml:"id"`
 	Name string `yaml:"name"`
-}
-
-func AddSubordinate(authority Authority, name, serial string) ([]Subordinate, error) {
-	subordinate := Subordinate{Name: name, Id: serial}
-	newsub := []Subordinate{}
-	found := false
-
-	for _, s := range authority.Subordinates {
-		if s.Name == subordinate.Name {
-			newsub = append(newsub, subordinate)
-			found = true
-		} else {
-			newsub = append(newsub, s)
-		}
-	}
-
-	if !found {
-		newsub = append(newsub, subordinate)
-
-		return newsub, nil
-	}
-
-	return nil, fmt.Errorf("subordinate '%s' already exist", name)
 }
