@@ -21,7 +21,7 @@ import (
 	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
-func git_attributes() {
+func git_attributes() error {
 	var contents bytes.Buffer
 
 	contents.WriteString("*       text eol=lf\n")
@@ -35,5 +35,5 @@ func git_attributes() {
 	contents.WriteString("*.pfx   binary\n")
 	contents.WriteString("*.key   text\n")
 
-	filesystem.EnsureFileExist(".gitattributes", contents.Bytes())
+	return filesystem.EnsureFileExist(".gitattributes", contents.Bytes())
 }

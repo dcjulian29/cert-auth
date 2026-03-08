@@ -22,19 +22,19 @@ import (
 	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
-func cnf_ca() {
+func cnf_ca() error {
 	var contents bytes.Buffer
 
 	contents.WriteString("[default]\n")
-	contents.WriteString(fmt.Sprintf("name                    = %s\n", settings.Name))
-	contents.WriteString(fmt.Sprintf("domain_suffix           = %s\n", settings.Domain))
+	fmt.Fprintf(&contents, "name                    = %s\n", settings.Name)
+	fmt.Fprintf(&contents, "domain_suffix           = %s\n", settings.Domain)
 
 	contents.Write(cnf_default())
 
 	contents.WriteString("\n[ca_dn]\n")
-	contents.WriteString(fmt.Sprintf("countryName             = %s\n", settings.Country))
-	contents.WriteString(fmt.Sprintf("organizationName        = %s\n", settings.Organization))
-	contents.WriteString(fmt.Sprintf("commonName              = %s\n", settings.CommonName))
+	fmt.Fprintf(&contents, "countryName             = %s\n", settings.Country)
+	fmt.Fprintf(&contents, "organizationName        = %s\n", settings.Organization)
+	fmt.Fprintf(&contents, "commonName              = %s\n", settings.CommonName)
 
 	contents.Write(cnf_default_ca())
 
@@ -90,5 +90,5 @@ func cnf_ca() {
 		contents.Write(ext_subca())
 	}
 
-	filesystem.EnsureFileExist("ca.cnf", contents.Bytes())
+	return filesystem.EnsureFileExist("ca.cnf", contents.Bytes())
 }

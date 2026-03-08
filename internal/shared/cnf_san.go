@@ -55,19 +55,19 @@ func cnf_san(name string, additionalNames []string) []byte {
 	contents.WriteString("[server_req]\nsubjectAltName = @san_list\n\n[san_list]\n")
 
 	for i, v := range uri {
-		contents.WriteString(fmt.Sprintf("URI.%d = %s\n", i, v))
+		fmt.Fprintf(&contents, "URI.%d = %s\n", i, v)
 	}
 
 	for i, v := range dns {
-		contents.WriteString(fmt.Sprintf("DNS.%d = %s\n", i, v))
+		fmt.Fprintf(&contents, "DNS.%d = %s\n", i, v)
 	}
 
 	for i, v := range ip {
-		contents.WriteString(fmt.Sprintf("IP.%d = %s\n", i, v))
+		fmt.Fprintf(&contents, "IP.%d = %s\n", i, v)
 	}
 
 	for i, v := range email {
-		contents.WriteString(fmt.Sprintf("email.%d = %s\n", i, v))
+		fmt.Fprintf(&contents, "email.%d = %s\n", i, v)
 	}
 
 	contents.WriteString("\n")

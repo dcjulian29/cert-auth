@@ -30,7 +30,7 @@ func cnf_policy() []byte {
 		policy = "policy_o_match"
 	}
 
-	contents.WriteString(fmt.Sprintf("policy                  = %s\n", policy))
+	fmt.Fprintf(&contents, "policy                  = %s\n", policy)
 	contents.WriteString("\n[policy_c_o_match]\n")
 	contents.WriteString("countryName             = match\n")
 	contents.WriteString("stateOrProvinceName     = optional\n")

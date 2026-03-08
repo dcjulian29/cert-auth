@@ -28,14 +28,19 @@ func ImportSubordinate(filePath, pass string) (string, string, error) {
 		return "", "", err
 	}
 
-	SignRequest(id, pass, 1825)
+	if err := SignRequest(id, pass, 1825); err != nil {
+		return "", "", err
+	}
 
-	serial, _ := execute.ExternalProgramCapture("openssl", []string{
+	serial, err := execute.ExternalProgramCapture("openssl", []string{
 		"x509",
 		"-noout",
 		fmt.Sprintf("-in ./certs/%s.pem", id),
 		"-serial",
 	}...)
+	if err != nil {
+		return "", "", err
+	}
 
 	serial = strings.TrimRight(strings.Replace(serial, "serial=", "", 1), "\r\n")
 

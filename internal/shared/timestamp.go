@@ -57,11 +57,14 @@ func EnableTimestamp(password string) error {
 	contents.WriteString("prompt                  = no\n")
 	contents.WriteString("distinguished_name      = req_subj\n\n")
 	contents.WriteString("[req_subj]\n")
-	contents.WriteString(fmt.Sprintf("countryName             = %s\n", settings.Country))
-	contents.WriteString(fmt.Sprintf("organizationName        = %s\n", settings.Organization))
-	contents.WriteString(fmt.Sprintf("commonName              = %s Timestamp Authority\n", settings.CommonName))
 
-	filesystem.EnsureFileExist("timestamp.cnf", contents.Bytes())
+	fmt.Fprintf(&contents, "countryName             = %s\n", settings.Country)
+	fmt.Fprintf(&contents, "organizationName        = %s\n", settings.Organization)
+	fmt.Fprintf(&contents, "commonName              = %s Timestamp Authority\n", settings.CommonName)
+
+	if err := filesystem.EnsureFileExist("timestamp.cnf", contents.Bytes()); err != nil {
+		return err
+	}
 
 	if err := newTimestampKey(); err != nil {
 		return err
@@ -81,7 +84,7 @@ func ReplaceTimestamp() error {
 	}
 
 	if !settings.TimeStamp {
-		return errors.New("Timestamp is not enabled in this authority")
+		return errors.New("timestamp is not enabled in this authority")
 	}
 
 	filePath := filepath.Join("cert", "timestamp.pem")

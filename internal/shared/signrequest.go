@@ -22,14 +22,14 @@ import (
 	"github.com/dcjulian29/go-toolbox/execute"
 )
 
-func SignRequest(id, pass string, days int) {
+func SignRequest(id, pass string, days int) error {
 	if len(pass) == 0 {
 		pass, _ = AskPrivateKeyPassword()
 	}
 
 	fmt.Println(color.Info("Signing request and generating a certificate..."))
 
-	execute.ExternalProgram("openssl", []string{
+	return execute.ExternalProgram("openssl", []string{
 		"ca",
 		"-batch",
 		"-config ca.cnf",

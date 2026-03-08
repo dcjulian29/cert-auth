@@ -47,21 +47,21 @@ func ValidateCertificate(path string, bundle bool) error {
 			return err
 		}
 
-		defer resp.Body.Close()
+		defer resp.Body.Close() //nolint
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return err
 		}
 
-		filesystem.EnsureFileExist(ca, body)
+		if err := filesystem.EnsureFileExist(ca, body); err != nil {
+			return err
+		}
 	}
 
-	execute.ExternalProgram("openssl", []string{
+	return execute.ExternalProgram("openssl", []string{
 		"verify",
 		fmt.Sprintf("-CAfile %s", ca),
 		path,
 	}...)
-
-	return nil
 }

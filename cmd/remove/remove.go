@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"os"
 
-
 	"github.com/dcjulian29/cert-auth/internal/shared"
 	"github.com/dcjulian29/go-toolbox/filesystem"
 	"github.com/spf13/cobra"
@@ -73,7 +72,7 @@ func NewCommand() *cobra.Command {
 
 	cmd.Flags().StringP("name", "n", "", "name of subordinate authority")
 
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("name")
 
 	return cmd
 }

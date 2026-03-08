@@ -15,6 +15,7 @@
     "ldflags",
     "lname",
     "nfpms",
+    "nolint",
     "noout",
     "OCSP",
     "pkcs",

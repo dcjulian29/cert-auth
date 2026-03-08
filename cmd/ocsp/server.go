@@ -40,11 +40,11 @@ func serverCmd() *cobra.Command {
 					port, _ := cmd.Flags().GetInt("port")
 					background, _ := cmd.Flags().GetBool("background")
 
-					start(port, background)
+					return start(port, background)
 				}
 
 				if p, _ := cmd.Flags().GetBool("stop"); p {
-					stop()
+					return stop()
 				}
 			} else {
 				return errors.New("OCSP is not enabled in this certificate authority")

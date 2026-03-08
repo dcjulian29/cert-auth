@@ -21,10 +21,10 @@ import (
 	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
-func git_ignore() {
+func git_ignore() error {
 	var contents bytes.Buffer
 
 	contents.WriteString("/**/private/*\n")
 
-	filesystem.EnsureFileExist(".gitignore", contents.Bytes())
+	return filesystem.EnsureFileExist(".gitignore", contents.Bytes())
 }

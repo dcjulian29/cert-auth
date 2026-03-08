@@ -79,7 +79,9 @@ func NewCommand() *cobra.Command {
 			fmt.Println(color.Info("Creating certificate authority directories..."))
 
 			for _, folder := range []string{"certs", "csr", "db", "private"} {
-				filesystem.EnsureDirectoryExist(folder)
+				if err := filesystem.EnsureDirectoryExist(folder); err != nil {
+					return err
+				}
 			}
 
 			fmt.Println(color.Info("Initalizing certificate authority..."))
@@ -137,11 +139,21 @@ func NewCommand() *cobra.Command {
 
 			serialnum, _ := shared.RandomId(15)
 
-			filesystem.EnsureFileExist("db/index", []byte{})
-			filesystem.EnsureFileExist("db/serial", []byte(serialnum))
-			filesystem.EnsureFileExist("db/crlnumber", []byte(`1001`))
+			if err := filesystem.EnsureFileExist("db/index", []byte{}); err != nil {
+				return err
+			}
 
-			cnf_ca()
+			if err := filesystem.EnsureFileExist("db/serial", []byte(serialnum)); err != nil {
+				return err
+			}
+
+			if err := filesystem.EnsureFileExist("db/crlnumber", []byte(`1001`)); err != nil {
+				return err
+			}
+
+			if err := cnf_ca(); err != nil {
+				return err
+			}
 
 			fmt.Println(color.Info("Generating the certificate authority private key..."))
 
@@ -258,7 +270,9 @@ func NewCommand() *cobra.Command {
 				}
 			}
 
-			shared.SaveSettings(&settings)
+			if err := shared.SaveSettings(&settings); err != nil {
+				return err
+			}
 
 			if settings.OCSP {
 				if err := shared.EnableOCSP(keyPass); err != nil {
@@ -276,9 +290,17 @@ func NewCommand() *cobra.Command {
 			case "root":
 				if s, _ := cmd.Flags().GetBool("scm"); s {
 					fmt.Println(color.Info("Adding source control supporting files..."))
-					git_ignore()
-					git_attributes()
-					editor_config()
+					if err := git_ignore(); err != nil {
+						return err
+					}
+
+					if err := git_attributes(); err != nil {
+						return err
+					}
+
+					if err := editor_config(); err != nil {
+						return err
+					}
 				}
 
 				fmt.Println(color.Info(`Creation of a root certificate authority complete...

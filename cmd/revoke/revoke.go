@@ -78,9 +78,7 @@ func NewCommand() *cobra.Command {
 
 					s.Id = "~REVOKED~"
 
-					shared.SaveSettings(&settings)
-
-					return nil
+					return shared.SaveSettings(&settings)
 				}
 			}
 
@@ -91,7 +89,7 @@ func NewCommand() *cobra.Command {
 	cmd.Flags().VarP(&revokeReason, "reason", "r", "reason for revocation")
 	cmd.Flags().StringP("name", "n", "", "name of subordinate authority")
 
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("name")
 
 	return cmd
 }

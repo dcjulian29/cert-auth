@@ -67,7 +67,9 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 
-			publish_files(settings, dest)
+			if err := publish_files(settings, dest); err != nil {
+				return err
+			}
 
 			for _, s := range settings.Subordinates {
 				if err := shared.ValidateSubordinate(s.Id, s.Name); err != nil {
@@ -78,7 +80,9 @@ func NewCommand() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				publish_files(authority, filepath.Join("..", dest))
+				if err := publish_files(authority, filepath.Join("..", dest)); err != nil {
+					return err
+				}
 			}
 
 			fmt.Println(color.Warn(fmt.Sprintf("~~~~~~\nThis certificate authority has been published to '%s'.", dest)))

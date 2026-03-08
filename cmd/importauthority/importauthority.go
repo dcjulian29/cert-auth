@@ -81,19 +81,31 @@ func NewCommand() *cobra.Command {
 				Subordinates: []shared.Subordinate{},
 			}
 
-			filesystem.EnsureDirectoryExist(name)
+			if err := filesystem.EnsureDirectoryExist(name); err != nil {
+				return err
+			}
 
 			if err := shared.SaveSubordinateSettings(id, authority); err != nil {
 				return err
 			}
 
-			filesystem.EnsureDirectoryExist(filepath.Join(name, "csr"))
-			filesystem.CopyFile(filepath.Join(".", "csr", fmt.Sprintf("%s.csr", id)),
-				filepath.Join(".", name, "csr", "ca.csr"))
+			if err := filesystem.EnsureDirectoryExist(filepath.Join(name, "csr")); err != nil {
+				return err
+			}
 
-			filesystem.EnsureDirectoryExist(filepath.Join(name, "certs"))
-			filesystem.CopyFile(filepath.Join(".", "certs", fmt.Sprintf("%s.pem", id)),
-				filepath.Join(".", name, "certs", "ca.pem"))
+			if err := filesystem.CopyFile(filepath.Join(".", "csr", fmt.Sprintf("%s.csr", id)),
+				filepath.Join(".", name, "csr", "ca.csr")); err != nil {
+				return err
+			}
+
+			if err := filesystem.EnsureDirectoryExist(filepath.Join(name, "certs")); err != nil {
+				return err
+			}
+
+			if err := filesystem.CopyFile(filepath.Join(".", "certs", fmt.Sprintf("%s.pem", id)),
+				filepath.Join(".", name, "certs", "ca.pem")); err != nil {
+				return err
+			}
 
 			fmt.Println(color.Info("Writing subordinate authority chain certificate..."))
 
@@ -109,16 +121,14 @@ func NewCommand() *cobra.Command {
 
 			chain := fmt.Sprintf("%s\n%s\n", string(root), string(sub))
 
-			filesystem.EnsureFileExist(filepath.Join(".", name, "certs", "ca-chain.pem"), []byte(chain))
-
-			return nil
+			return filesystem.EnsureFileExist(filepath.Join(".", name, "certs", "ca-chain.pem"), []byte(chain))
 		},
 	}
 
 	cmd.Flags().StringP("name", "n", "", "name for subordinate authority")
 	cmd.Flags().StringP("request", "r", "", "request file for subordinate authority")
 
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("name")
 
 	return cmd
 }

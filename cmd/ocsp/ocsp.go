@@ -44,9 +44,7 @@ func NewCommand() *cobra.Command {
 					}
 				}
 
-				shared.ShowCertificate("ocsp", false)
-
-				return nil
+				return shared.ShowCertificate("ocsp", false)
 			} else {
 				return errors.New("OCSP is not enabled in this certificate authority")
 			}

@@ -65,16 +65,20 @@ func NewRequest(requestFile, keyFile, pass string, data RequestData) error {
 		contents.WriteString("req_extensions = client_req\n\n")
 		contents.WriteString("[ client_req ]\n")
 		contents.WriteString("keyUsage = nonRepudiation, digitalSignature, keyEncipherment\n")
-		contents.WriteString(fmt.Sprintf("subjectAltName = email:%s\n", data.Name))
+		fmt.Fprintf(&contents, "subjectAltName = email:%s\n", data.Name)
 	}
 
 	contents.Write(RequestSubject(data))
 
-	filesystem.EnsureFileExist(configFile, contents.Bytes())
+	if err := filesystem.EnsureFileExist(configFile, contents.Bytes()); err != nil {
+		return err
+	}
 
 	if len(pass) == 0 {
 		pass, err = AskPassword(keyFile)
-
+		if err != nil {
+			return err
+		}
 	}
 
 	return execute.ExternalProgram("openssl", []string{

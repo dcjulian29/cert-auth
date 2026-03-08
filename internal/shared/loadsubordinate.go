@@ -30,7 +30,7 @@ func LoadSubordinate(name string) (Authority, error) {
 	if err != nil {
 		return Authority{}, err
 	} else {
-		if exist == false {
+		if !exist {
 			return Authority{}, fmt.Errorf("'%s' is not a subordinate of this authority", name)
 		}
 	}

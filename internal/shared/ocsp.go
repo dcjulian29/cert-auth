@@ -57,11 +57,14 @@ func EnableOCSP(password string) error {
 	contents.WriteString("prompt                  = no\n")
 	contents.WriteString("distinguished_name      = req_subj\n\n")
 	contents.WriteString("[req_subj]\n")
-	contents.WriteString(fmt.Sprintf("countryName             = %s\n", settings.Country))
-	contents.WriteString(fmt.Sprintf("organizationName        = %s\n", settings.Organization))
-	contents.WriteString(fmt.Sprintf("commonName              = %s OCSP Responder\n", settings.CommonName))
 
-	filesystem.EnsureFileExist("ocsp.cnf", contents.Bytes())
+	fmt.Fprintf(&contents, "countryName             = %s\n", settings.Country)
+	fmt.Fprintf(&contents, "organizationName        = %s\n", settings.Organization)
+	fmt.Fprintf(&contents, "commonName              = %s OCSP Responder\n", settings.CommonName)
+
+	if err := filesystem.EnsureFileExist("ocsp.cnf", contents.Bytes()); err != nil {
+		return err
+	}
 
 	if err := newOcspKey(); err != nil {
 		return err
@@ -84,7 +87,7 @@ func ReplaceOCSP(reason RevokeType) error {
 		return errors.New("OCSP is not enabled in this authority")
 	}
 
-	if !(reason == Superseded || reason == KeyCompromise) {
+	if !(reason == Superseded || reason == KeyCompromise) { //nolint
 		return errors.New("the reason provided is not allowed (only 'superseded' or 'keycompromise' allowed)")
 	}
 

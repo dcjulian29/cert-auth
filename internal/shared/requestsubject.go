@@ -23,23 +23,23 @@ import (
 func RequestSubject(data RequestData) []byte {
 	var contents bytes.Buffer
 
-	contents.WriteString(fmt.Sprintf("[req_subj]\ncountryName = %s\n", data.Country))
+	fmt.Fprintf(&contents, "[req_subj]\ncountryName = %s\n", data.Country)
 
 	if len(data.State) > 0 {
-		contents.WriteString(fmt.Sprintf("stateOrProvinceName = %s\n", data.State))
+		fmt.Fprintf(&contents, "stateOrProvinceName = %s\n", data.State)
 	}
 
 	if len(data.Locality) > 0 {
-		contents.WriteString(fmt.Sprintf("localityName = %s\n", data.Locality))
+		fmt.Fprintf(&contents, "localityName = %s\n", data.Locality)
 	}
 
-	contents.WriteString(fmt.Sprintf("organizationName = %s\n", data.Organization))
+	fmt.Fprintf(&contents, "organizationName = %s\n", data.Organization)
 
 	if len(data.OrganizationalUnit) > 0 {
-		contents.WriteString(fmt.Sprintf("organizationUnitName = %s\n", data.OrganizationalUnit))
+		fmt.Fprintf(&contents, "organizationUnitName = %s\n", data.OrganizationalUnit)
 	}
 
-	contents.WriteString(fmt.Sprintf("commonName = %s\n", data.Name))
+	fmt.Fprintf(&contents, "commonName = %s\n", data.Name)
 
 	return contents.Bytes()
 }

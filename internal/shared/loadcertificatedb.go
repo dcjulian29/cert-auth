@@ -33,7 +33,7 @@ func LoadCertificateDB(revoked bool) ([]CertificateData, error) {
 		return []CertificateData{}, err
 	}
 
-	defer f.Close()
+	defer f.Close() //nolint
 
 	s := bufio.NewScanner(f)
 
