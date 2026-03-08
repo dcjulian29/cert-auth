@@ -16,29 +16,32 @@ limitations under the License.
 package cmd
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"os"
 
-	"github.com/dcjulian29/cert-auth/internal/certauth"
+	"github.com/dcjulian29/cert-auth/cmd/certificate"
+	"github.com/dcjulian29/cert-auth/cmd/crl"
+	"github.com/dcjulian29/cert-auth/cmd/importauthority"
+	"github.com/dcjulian29/cert-auth/cmd/newauthority"
+	"github.com/dcjulian29/cert-auth/cmd/ocsp"
+	"github.com/dcjulian29/cert-auth/cmd/publish"
+	"github.com/dcjulian29/cert-auth/cmd/remove"
+	"github.com/dcjulian29/cert-auth/cmd/revoke"
+	"github.com/dcjulian29/cert-auth/cmd/settings"
+	"github.com/dcjulian29/cert-auth/cmd/timestamp"
+	"github.com/dcjulian29/cert-auth/cmd/update"
 	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/spf13/cobra"
 	"go.szostok.io/version/extension"
-	"golang.org/x/term"
 )
 
-var (
-	cfgFile    string
-	folderPath string
-	settings   certauth.Authority
-
-	rootCmd = &cobra.Command{
-		Use:   "cert-auth",
-		Short: "cert-auth provides the commands to run a certificate authority",
-		Long:  `cert-auth provides the commands to run a certificate authority`,
-	}
-)
+var rootCmd = &cobra.Command{
+	Use:           "cert-auth",
+	Short:         "cert-auth provides the commands to run a certificate authority",
+	Long:          `cert-auth provides the commands to run a certificate authority`,
+	SilenceErrors: true,
+	SilenceUsage:  true,
+}
 
 func Execute() {
 	rootCmd.AddCommand(
@@ -54,28 +57,15 @@ func Execute() {
 }
 
 func init() {
-	pwd, _ := os.Getwd()
-
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "specify authority configuration file")
-	rootCmd.PersistentFlags().StringVar(&folderPath, "path", pwd, "path to certificate authority folder")
-
-	cobra.OnInitialize(initialize_authority)
-}
-
-func askPassword(filePath string) string {
-	fmt.Printf("\033[1;35mEnter pass phrase for %s:\033[0m ", filePath)
-
-	p, err := term.ReadPassword(int(os.Stdin.Fd()))
-	fmt.Println()
-	cobra.CheckErr(err)
-
-	return string(p)
-}
-
-func getRandomId(length int) string {
-	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	cobra.CheckErr(err)
-
-	return hex.EncodeToString(bytes)
+	rootCmd.AddCommand(certificate.NewCommand())
+	rootCmd.AddCommand(crl.NewCommand())
+	rootCmd.AddCommand(importauthority.NewCommand())
+	rootCmd.AddCommand(newauthority.NewCommand())
+	rootCmd.AddCommand(ocsp.NewCommand())
+	rootCmd.AddCommand(publish.NewCommand())
+	rootCmd.AddCommand(remove.NewCommand())
+	rootCmd.AddCommand(revoke.NewCommand())
+	rootCmd.AddCommand(settings.NewCommand())
+	rootCmd.AddCommand(timestamp.NewCommand())
+	rootCmd.AddCommand(update.NewCommand())
 }
