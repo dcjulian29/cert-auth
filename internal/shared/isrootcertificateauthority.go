@@ -13,10 +13,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"errors"
+)
 
-func main() {
-	cmd.Execute()
+func IsRootCertificateAuthority() error {
+	if err := IsCertificateAuthority(); err != nil {
+		return err
+	}
+
+	settings, err := GetSettings()
+	if err != nil {
+		return err
+	}
+
+	if settings.Type == RootAuthority {
+		return nil
+	}
+
+	return errors.New("this is not a root certificate authority")
 }

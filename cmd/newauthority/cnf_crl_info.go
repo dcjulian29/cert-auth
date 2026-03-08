@@ -13,10 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package newauthority
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"bytes"
+)
 
-func main() {
-	cmd.Execute()
+func cnf_crl_info() []byte {
+	var contents bytes.Buffer
+
+	contents.WriteString("\n[crl_info]\n")
+	contents.WriteString("URI.0                   = $crl_url\n")
+
+	return contents.Bytes()
 }

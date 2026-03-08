@@ -13,10 +13,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"fmt"
+)
 
-func main() {
-	cmd.Execute()
+func AddSubordinate(authority Authority, name, serial string) ([]Subordinate, error) {
+	subordinate := Subordinate{Name: name, Id: serial}
+	n := []Subordinate{}
+	found := false
+
+	for _, s := range authority.Subordinates {
+		if s.Name == subordinate.Name {
+			found = true
+		} else {
+			n = append(n, s)
+		}
+	}
+
+	if !found {
+		n = append(n, subordinate)
+
+		return n, nil
+	}
+
+	return nil, fmt.Errorf("subordinate '%s' already exist in root authority", name)
 }

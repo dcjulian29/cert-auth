@@ -13,10 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package newauthority
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"bytes"
 
-func main() {
-	cmd.Execute()
+	"github.com/dcjulian29/go-toolbox/filesystem"
+)
+
+func git_ignore() error {
+	var contents bytes.Buffer
+
+	contents.WriteString("/**/private/*\n")
+
+	return filesystem.EnsureFileExist(".gitignore", contents.Bytes())
 }

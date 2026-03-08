@@ -13,10 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"path/filepath"
+)
 
-func main() {
-	cmd.Execute()
+func AskPrivateKeyPassword() (string, error) {
+	return AskPassword(filepath.Join("private", "ca.key"))
 }

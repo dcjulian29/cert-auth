@@ -13,10 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
-
-func main() {
-	cmd.Execute()
+type RequestData struct {
+	Name               string
+	Country            string
+	State              string
+	Locality           string
+	Organization       string
+	OrganizationalUnit string
+	AdditionalNames    []string
+	RequestType        CertificateType
 }

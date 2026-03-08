@@ -13,10 +13,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package ocsp
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"fmt"
 
-func main() {
-	cmd.Execute()
+	"github.com/dcjulian29/cert-auth/internal/shared"
+	"github.com/dcjulian29/go-toolbox/execute"
+)
+
+func stop() error {
+	settings, err := shared.GetSettings()
+	if err != nil {
+		return err
+	}
+
+	name := fmt.Sprintf("ocsp_%s", settings.Name)
+
+	if running(name) {
+		return execute.ExternalProgram("docker", []string{
+			"rm",
+			"--force",
+			name,
+		}...)
+	} else {
+		return fmt.Errorf("'%s' OCSP responder is not running", settings.Name)
+	}
 }

@@ -13,10 +13,33 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import "errors"
 
-func main() {
-	cmd.Execute()
+type KeyType string
+
+const (
+	DefaultKeyType KeyType = Elliptic
+	Edwards        KeyType = "edwards"
+	Elliptic       KeyType = "elliptic"
+	RSA            KeyType = "rsa"
+)
+
+func (e *KeyType) String() string {
+	return string(*e)
+}
+
+func (e *KeyType) Set(v string) error {
+	switch v {
+	case "edwards", "elliptic", "rsa":
+		*e = KeyType(v)
+		return nil
+	default:
+		return errors.New(`must be one of "edwards", "elliptic", or "rsa"`)
+	}
+}
+
+func (e *KeyType) Type() string {
+	return "KeyType"
 }

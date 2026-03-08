@@ -13,10 +13,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"fmt"
 
-func main() {
-	cmd.Execute()
+	"github.com/dcjulian29/go-toolbox/color"
+	"github.com/dcjulian29/go-toolbox/execute"
+)
+
+func UpdateAuthority(password string) error {
+	if len(password) == 0 {
+		pass, err := AskPrivateKeyPassword()
+		if err != nil {
+			return err
+		}
+
+		password = pass
+	}
+
+	color.Info("Updating the certificate authority database...")
+
+	return execute.ExternalProgram("openssl", []string{
+		"ca",
+		fmt.Sprintf("-config %s", "ca.cnf"),
+		"-updatedb",
+		fmt.Sprintf("-passin pass:%s", password),
+	}...)
 }

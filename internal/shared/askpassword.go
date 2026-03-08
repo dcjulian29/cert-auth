@@ -13,10 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"fmt"
+	"os"
+	"path/filepath"
 
-func main() {
-	cmd.Execute()
+	"golang.org/x/term"
+)
+
+func AskPassword(filePath string) (string, error) {
+	pwd, _ := os.Getwd()
+	filePath = filepath.Join(pwd, filePath)
+
+	fmt.Printf("\033[1;35mEnter pass phrase for %s:\033[0m ", filePath)
+
+	p, err := term.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
+
+	if err != nil {
+		return "", nil
+	}
+
+	return string(p), nil
 }

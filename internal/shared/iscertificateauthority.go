@@ -13,10 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"errors"
 
-func main() {
-	cmd.Execute()
+	"github.com/dcjulian29/go-toolbox/filesystem"
+)
+
+func IsCertificateAuthority() error {
+	if !filesystem.FileExists("ca.yml") {
+		return errors.New("this is not a certificate authority")
+	}
+
+	return nil
 }

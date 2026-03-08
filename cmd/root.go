@@ -1,5 +1,5 @@
 /*
-Copyright © 2023 Julian Easterling julian@julianscorner.com
+Copyright © 2026 Julian Easterling
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,36 +16,34 @@ limitations under the License.
 package cmd
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
-	"io"
-	"io/fs"
 	"os"
-	"os/exec"
-	"path/filepath"
 
+	"github.com/dcjulian29/cert-auth/cmd/certificate"
+	"github.com/dcjulian29/cert-auth/cmd/crl"
+	"github.com/dcjulian29/cert-auth/cmd/importauthority"
+	"github.com/dcjulian29/cert-auth/cmd/newauthority"
+	"github.com/dcjulian29/cert-auth/cmd/ocsp"
+	"github.com/dcjulian29/cert-auth/cmd/publish"
+	"github.com/dcjulian29/cert-auth/cmd/remove"
+	"github.com/dcjulian29/cert-auth/cmd/revoke"
+	"github.com/dcjulian29/cert-auth/cmd/settings"
+	"github.com/dcjulian29/cert-auth/cmd/timestamp"
+	"github.com/dcjulian29/cert-auth/cmd/update"
+	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/spf13/cobra"
 	"go.szostok.io/version/extension"
-	"golang.org/x/term"
 )
 
-var (
-	cfgFile          string
-	folderPath       string
-	workingDirectory string
-	settings         CertAuth
-
-	rootCmd = &cobra.Command{
-		Use:   "cert-auth",
-		Short: "cert-auth provides the commands to run a certificate authority",
-		Long:  `cert-auth provides the commands to run a certificate authority`,
-	}
-)
+var rootCmd = &cobra.Command{
+	Use:           "cert-auth",
+	Short:         "cert-auth provides the commands to run a certificate authority",
+	Long:          `cert-auth provides the commands to run a certificate authority`,
+	SilenceErrors: true,
+	SilenceUsage:  true,
+}
 
 func Execute() {
-	workingDirectory, _ = os.Getwd()
-
 	rootCmd.AddCommand(
 		extension.NewVersionCobraCmd(
 			extension.WithUpgradeNotice("dcjulian29", "cert-auth"),
@@ -53,144 +51,21 @@ func Execute() {
 	)
 
 	if err := rootCmd.Execute(); err != nil {
-		cobra.CheckErr(err)
+		fmt.Fprintln(os.Stderr, "\n"+color.Fatal(err.Error()))
 		os.Exit(1)
 	}
 }
 
 func init() {
-	pwd, _ := os.Getwd()
-
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "specify authority configuration file")
-	rootCmd.PersistentFlags().StringVar(&folderPath, "path", pwd, "path to certificate authority folder")
-
-	cobra.OnInitialize(initialize_authority)
-}
-
-func askPassword(filePath string) string {
-	fmt.Printf("\033[1;35mEnter pass phrase for %s:\033[0m ", filePath)
-
-	p, err := term.ReadPassword(int(os.Stdin.Fd()))
-	fmt.Println()
-	cobra.CheckErr(err)
-
-	return string(p)
-}
-
-func copyFile(src, dst string) {
-	if fileExists(src) {
-		if fileExists(dst) {
-			err := os.Remove(dst)
-			cobra.CheckErr(err)
-		}
-
-		source, err := os.Open(src)
-		cobra.CheckErr(err)
-
-		defer source.Close()
-
-		destination, err := os.Create(dst)
-		cobra.CheckErr(err)
-
-		defer destination.Close()
-
-		_, err = io.Copy(destination, source)
-		cobra.CheckErr(err)
-	}
-}
-
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return false
-	}
-
-	return info.IsDir()
-}
-
-func ensureAuthorityDirectory() {
-	if workingDirectory != folderPath {
-		if err := os.Chdir(folderPath); err != nil {
-			cobra.CheckErr(err)
-		}
-	}
-}
-
-func ensureDir(dirPath string) error {
-	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
-		if err := os.MkdirAll(dirPath, 0755); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func ensureWorkingDirectoryAndExit() {
-	if workingDirectory != folderPath {
-		if err := os.Chdir(workingDirectory); err != nil {
-			cobra.CheckErr(err)
-		}
-	}
-
-	os.Exit(0)
-}
-
-func executeExternalProgram(program string, params ...string) {
-	cmd := exec.Command(program, params...)
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-
-	if err := cmd.Run(); err != nil {
-		ensureWorkingDirectoryAndExit()
-	}
-}
-
-func executeExternalProgramCapture(program string, params ...string) string {
-	cmd := exec.Command(program, params...)
-	cmd.Stdin = os.Stdin
-	out, err := cmd.CombinedOutput()
-	cobra.CheckErr(err)
-
-	return string(out)
-}
-
-func findFiles(dirPath, extension string) []string {
-	var files []string
-
-	filepath.WalkDir(dirPath, func(f string, d fs.DirEntry, e error) error {
-		if e != nil {
-			return e
-		}
-
-		if filepath.Ext(d.Name()) == extension {
-			files = append(files, f)
-		}
-
-		return nil
-	})
-
-	return files
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-
-	return !info.IsDir()
-}
-
-func getRandomId(length int) string {
-	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	cobra.CheckErr(err)
-
-	return hex.EncodeToString(bytes)
-}
-
-func info(message string) {
-	fmt.Printf("\n\033[1;36m%s\033[0m\n", message)
+	rootCmd.AddCommand(certificate.NewCommand())
+	rootCmd.AddCommand(crl.NewCommand())
+	rootCmd.AddCommand(importauthority.NewCommand())
+	rootCmd.AddCommand(newauthority.NewCommand())
+	rootCmd.AddCommand(ocsp.NewCommand())
+	rootCmd.AddCommand(publish.NewCommand())
+	rootCmd.AddCommand(remove.NewCommand())
+	rootCmd.AddCommand(revoke.NewCommand())
+	rootCmd.AddCommand(settings.NewCommand())
+	rootCmd.AddCommand(timestamp.NewCommand())
+	rootCmd.AddCommand(update.NewCommand())
 }

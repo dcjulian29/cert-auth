@@ -13,10 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package newauthority
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"bytes"
+)
 
-func main() {
-	cmd.Execute()
+func ext_ca() []byte {
+	var contents bytes.Buffer
+
+	contents.WriteString("\n[ca_ext]\n")
+	contents.WriteString("basicConstraints        = critical,CA:true\n")
+	contents.WriteString("keyUsage                = critical,keyCertSign,cRLSign\n")
+	contents.WriteString("subjectKeyIdentifier    = hash\n")
+
+	return contents.Bytes()
 }

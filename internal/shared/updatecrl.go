@@ -13,10 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"fmt"
 
-func main() {
-	cmd.Execute()
+	"github.com/dcjulian29/go-toolbox/color"
+	"github.com/dcjulian29/go-toolbox/execute"
+)
+
+func UpdateCRL(password string) error {
+	if len(password) == 0 {
+		password, _ = AskPrivateKeyPassword()
+	}
+
+	fmt.Println(color.Info("Updating the certificate revocation list..."))
+
+	return execute.ExternalProgram("openssl", []string{
+		"ca",
+		"-config ca.cnf",
+		"-gencrl",
+		"-out ca.crl",
+		fmt.Sprintf("-passin pass:%s", password),
+	}...)
 }

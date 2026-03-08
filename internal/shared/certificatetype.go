@@ -13,10 +13,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import "errors"
 
-func main() {
-	cmd.Execute()
+type CertificateType string
+
+const (
+	CertificateTypeServer CertificateType = "server"
+	CertificateTypeClient CertificateType = "client"
+)
+
+func (e *CertificateType) String() string {
+	return string(*e)
+}
+
+func (e *CertificateType) Set(v string) error {
+	switch v {
+	case "server", "client":
+		*e = CertificateType(v)
+		return nil
+	default:
+		return errors.New(`must be one of "server", "client"`)
+	}
+}
+
+func (e *CertificateType) Type() string {
+	return "CertificateType"
 }

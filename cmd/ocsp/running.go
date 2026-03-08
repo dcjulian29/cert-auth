@@ -13,10 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package ocsp
 
-import "github.com/dcjulian29/cert-auth/cmd"
+import (
+	"fmt"
 
-func main() {
-	cmd.Execute()
+	"github.com/dcjulian29/go-toolbox/execute"
+)
+
+func running(name string) bool {
+	r, _ := execute.ExternalProgramCapture("docker", []string{
+		"ps",
+		"--format", "{{.Names}}", "--filter",
+		fmt.Sprintf("name=%s", name),
+	}...)
+
+	return len(r) != 0
 }

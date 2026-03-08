@@ -13,10 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package shared
 
-import "github.com/dcjulian29/cert-auth/cmd"
+func SubordinateExists(name string) (bool, error) {
+	if err := IsCertificateAuthority(); err != nil {
+		return false, err
+	}
 
-func main() {
-	cmd.Execute()
+	if err := IsRootCertificateAuthority(); err != nil {
+		return false, err
+	}
+
+	settings, err := GetSettings()
+	if err != nil {
+		return false, err
+	}
+
+	for _, s := range settings.Subordinates {
+		if s.Name == name {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
