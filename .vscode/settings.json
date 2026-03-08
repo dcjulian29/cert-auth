@@ -16,11 +16,13 @@
     "lname",
     "nfpms",
     "noout",
+    "OCSP",
     "pkcs",
     "rkey",
     "rootca",
     "rsigner",
     "secp",
+    "serialnum",
     "subca",
     "szostok",
     "updatedb"
