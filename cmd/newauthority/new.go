@@ -194,6 +194,7 @@ func NewCommand() *cobra.Command {
 					"-in csr/ca.csr",
 					"-out certs/ca.pem",
 					"-extensions ca_ext",
+					"-days 7300",
 					fmt.Sprintf("-passin pass:%s", keyPass),
 				}...); err != nil {
 					return err
@@ -342,7 +343,7 @@ This subordinate authority can only be used to sign certificates within this aut
 
 	cmd.MarkFlagsMutuallyExclusive("scm", "subordinate")
 
-	cmd.Flags().Var(&privateKeyType, "keytype", `algorithm to use for private key (allowed "edwards", "elliptic", "rsa" (default "elliptic")`)
+	cmd.Flags().Var(&privateKeyType, "keytype", `algorithm to use for private key (allowed "edwards", "elliptic", "rsa"s`)
 
 	return cmd
 }
