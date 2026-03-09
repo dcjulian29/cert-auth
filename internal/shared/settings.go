@@ -71,14 +71,37 @@ func SaveSubordinateSettings(name string, subordinate Authority) error {
 		return err
 	}
 
+	var filePath string
+
 	pwd, _ := os.Getwd()
-	filePath := filepath.Join(pwd, subordinate.Name, "ca.yml")
+
+	if filesystem.IsCurrentDirectoryName(subordinate.Name) {
+		filePath = filepath.Join(pwd, "ca.yml")
+	} else {
+		filePath = filepath.Join(pwd, subordinate.Name, "ca.yml")
+	}
 
 	if filesystem.FileExists(filePath) {
 		return errors.New("subordinate configuration file already exists")
 	}
 
-	return filesystem.EnsureFileExist(filePath, yaml)
+	fmt.Println("Create File")
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close() //nolint
+
+	fmt.Println("Write File")
+	if _, err = file.Write(yaml); err != nil {
+		return err
+	}
+	fmt.Println("Done")
+
+	return nil
+
+	//	return filesystem.EnsureFileExist(filePath, yaml)
 }
 
 func load() (*Authority, error) {
