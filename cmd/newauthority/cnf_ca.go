@@ -40,11 +40,11 @@ func cnf_ca() error {
 
 	if settings.Type == "subordinate" {
 		contents.WriteString("copy_extensions         = copy\n")
-		contents.WriteString("default_days            = 370\n")
+		contents.WriteString("default_days            = 365\n")
 		contents.WriteString("default_crl_days        = 30\n")
 	} else {
 		contents.WriteString("copy_extensions         = none\n")
-		contents.WriteString("default_days            = 3655\n")
+		contents.WriteString("default_days            = 3650\n")
 		contents.WriteString("default_crl_days        = 365\n")
 	}
 
