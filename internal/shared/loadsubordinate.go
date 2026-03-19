@@ -25,13 +25,15 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func LoadSubordinate(name string) (Authority, error) {
+func LoadSubordinate(name string) (*Authority, error) {
+	cfg := &Authority{}
+
 	exist, err := SubordinateExists(name)
 	if err != nil {
-		return Authority{}, err
+		return cfg, err
 	} else {
 		if !exist {
-			return Authority{}, fmt.Errorf("'%s' is not a subordinate of this authority", name)
+			return cfg, fmt.Errorf("'%s' is not a subordinate of this authority", name)
 		}
 	}
 
@@ -40,23 +42,21 @@ func LoadSubordinate(name string) (Authority, error) {
 		filePath := filepath.Join(pwd, name, "ca.yml")
 
 		if !filesystem.FileExists(filePath) {
-			return Authority{}, errors.New("certification authority configuration not found")
+			return cfg, errors.New("certification authority configuration not found")
 		}
-
-		var cfg Authority
 
 		file, err := os.ReadFile(filePath)
 		if err != nil {
-			return Authority{}, fmt.Errorf("could not read certification authority configuration: %w", err)
+			return cfg, fmt.Errorf("could not read certification authority configuration: %w", err)
 		}
 
-		err = yaml.Unmarshal(file, cfg)
+		err = yaml.Unmarshal(file, &cfg)
 		if err != nil {
-			return Authority{}, fmt.Errorf("unable to load certification authority configuration: %w", err)
+			return cfg, fmt.Errorf("unable to load certification authority configuration: %w", err)
 		}
 
 		return cfg, nil
 	}
 
-	return Authority{}, fmt.Errorf("the directory for subordinate '%s' does not exist", name)
+	return cfg, fmt.Errorf("the directory for subordinate '%s' does not exist", name)
 }
