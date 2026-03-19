@@ -22,9 +22,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
+	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
 func EnableTimestamp(password string) error {
@@ -48,7 +48,7 @@ func EnableTimestamp(password string) error {
 
 	var contents bytes.Buffer
 
-	fmt.Println(color.Info("Initializing timestamp configuration for this authority..."))
+	fmt.Println(textformat.Info("Initializing timestamp configuration for this authority..."))
 
 	contents.WriteString("[req]\n")
 	contents.WriteString("encrypt_key             = no\n")
@@ -99,7 +99,7 @@ func ReplaceTimestamp() error {
 		return err
 	}
 
-	fmt.Println(color.Warn("Removing the current Timestamp certificate and key..."))
+	fmt.Println(textformat.Warn("Removing the current Timestamp certificate and key..."))
 
 	if filesystem.FileExists(filePath) {
 		if err := os.Remove(filePath); err != nil {
@@ -125,7 +125,7 @@ func ReplaceTimestamp() error {
 }
 
 func newTimestampCert(password string) error {
-	fmt.Println(color.Info("Generating the Timestamp certificate..."))
+	fmt.Println(textformat.Info("Generating the Timestamp certificate..."))
 
 	return execute.ExternalProgram("openssl", []string{
 		"ca",
@@ -140,7 +140,7 @@ func newTimestampCert(password string) error {
 }
 
 func newTimestampKey() error {
-	fmt.Println(color.Info("Generating the Timestamp private key..."))
+	fmt.Println(textformat.Info("Generating the Timestamp private key..."))
 
 	return execute.ExternalProgram("openssl", []string{
 		"ecparam",
@@ -152,7 +152,7 @@ func newTimestampKey() error {
 }
 
 func newTimestampRequest() error {
-	fmt.Println(color.Info("Generating the Timestamp certificate request..."))
+	fmt.Println(textformat.Info("Generating the Timestamp certificate request..."))
 
 	return execute.ExternalProgram("openssl", []string{
 		"req",

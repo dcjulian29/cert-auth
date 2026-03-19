@@ -22,9 +22,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
+	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
 func EnableOCSP(password string) error {
@@ -48,7 +48,7 @@ func EnableOCSP(password string) error {
 
 	var contents bytes.Buffer
 
-	fmt.Println(color.Info("Initializing OCSP configuration for this authority..."))
+	fmt.Println(textformat.Info("Initializing OCSP configuration for this authority..."))
 
 	contents.WriteString("[req]\n")
 	contents.WriteString("encrypt_key             = no\n")
@@ -103,7 +103,7 @@ func ReplaceOCSP(reason RevokeType) error {
 		return err
 	}
 
-	fmt.Println(color.Warn("Revoking the current OCSP certificate..."))
+	fmt.Println(textformat.Warn("Revoking the current OCSP certificate..."))
 
 	if err := execute.ExternalProgram("openssl", []string{
 		"ca",
@@ -115,7 +115,7 @@ func ReplaceOCSP(reason RevokeType) error {
 		return err
 	}
 
-	fmt.Println(color.Warn("Removing the current OCSP certificate and key..."))
+	fmt.Println(textformat.Warn("Removing the current OCSP certificate and key..."))
 
 	if filesystem.FileExists(filePath) {
 		if err := os.Remove(filePath); err != nil {
@@ -146,7 +146,7 @@ func ReplaceOCSP(reason RevokeType) error {
 }
 
 func newOcspCert(password string) error {
-	fmt.Println(color.Info("Generating the OCSP certificate..."))
+	fmt.Println(textformat.Info("Generating the OCSP certificate..."))
 
 	return execute.ExternalProgram("openssl", []string{
 		"ca",
@@ -161,7 +161,7 @@ func newOcspCert(password string) error {
 }
 
 func newOcspKey() error {
-	fmt.Println(color.Info("Generating the OCSP private key..."))
+	fmt.Println(textformat.Info("Generating the OCSP private key..."))
 
 	return execute.ExternalProgram("openssl", []string{
 		"ecparam",
@@ -173,7 +173,7 @@ func newOcspKey() error {
 }
 
 func newOcspRequest() error {
-	fmt.Println(color.Info("Generating the OCSP certificate request..."))
+	fmt.Println(textformat.Info("Generating the OCSP certificate request..."))
 
 	return execute.ExternalProgram("openssl", []string{
 		"req",

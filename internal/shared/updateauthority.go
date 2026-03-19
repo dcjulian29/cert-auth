@@ -18,8 +18,8 @@ package shared
 import (
 	"fmt"
 
-	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
+	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
 func UpdateAuthority(password string) error {
@@ -32,7 +32,7 @@ func UpdateAuthority(password string) error {
 		password = pass
 	}
 
-	color.Info("Updating the certificate authority database...")
+	textformat.Info("Updating the certificate authority database...")
 
 	return execute.ExternalProgram("openssl", []string{
 		"ca",

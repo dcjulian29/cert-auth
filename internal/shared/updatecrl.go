@@ -18,8 +18,8 @@ package shared
 import (
 	"fmt"
 
-	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
+	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
 func UpdateCRL(password string) error {
@@ -27,7 +27,7 @@ func UpdateCRL(password string) error {
 		password, _ = AskPrivateKeyPassword()
 	}
 
-	fmt.Println(color.Info("Updating the certificate revocation list..."))
+	fmt.Println(textformat.Info("Updating the certificate revocation list..."))
 
 	return execute.ExternalProgram("openssl", []string{
 		"ca",

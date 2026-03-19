@@ -21,8 +21,8 @@ import (
 	"path/filepath"
 
 	"github.com/dcjulian29/cert-auth/internal/shared"
-	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/filesystem"
+	"github.com/dcjulian29/go-toolbox/textformat"
 	"github.com/spf13/cobra"
 )
 
@@ -107,7 +107,7 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 
-			fmt.Println(color.Info("Writing subordinate authority chain certificate..."))
+			fmt.Println(textformat.Info("Writing subordinate authority chain certificate..."))
 
 			root, err := os.ReadFile("./certs/ca.pem")
 			if err != nil {

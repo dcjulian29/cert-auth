@@ -22,8 +22,8 @@ import (
 	"path/filepath"
 
 	"github.com/dcjulian29/cert-auth/internal/shared"
-	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/filesystem"
+	"github.com/dcjulian29/go-toolbox/textformat"
 	"github.com/spf13/cobra"
 )
 
@@ -85,7 +85,7 @@ func NewCommand() *cobra.Command {
 				}
 			}
 
-			fmt.Println(color.Warn(fmt.Sprintf("~~~~~~\nThis certificate authority has been published to '%s'.", dest)))
+			fmt.Println(textformat.Warn(fmt.Sprintf("~~~~~~\nThis certificate authority has been published to '%s'.", dest)))
 
 			return nil
 		},

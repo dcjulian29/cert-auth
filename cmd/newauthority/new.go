@@ -23,9 +23,9 @@ import (
 	"strings"
 
 	"github.com/dcjulian29/cert-auth/internal/shared"
-	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
+	"github.com/dcjulian29/go-toolbox/textformat"
 	"github.com/spf13/cobra"
 )
 
@@ -65,7 +65,7 @@ func NewCommand() *cobra.Command {
 				if filesystem.FileExists(filepath.Join(pwd, name, "ca.yml")) {
 					return fmt.Errorf("'%s' is already a subordinate authority", name)
 				} else {
-					fmt.Println(color.Info("Creating new subordinate authority folder ..."))
+					fmt.Println(textformat.Info("Creating new subordinate authority folder ..."))
 					if err := filesystem.EnsureDirectoryExist(name); err != nil {
 						return err
 					}
@@ -76,7 +76,7 @@ func NewCommand() *cobra.Command {
 				}
 			}
 
-			fmt.Println(color.Info("Creating certificate authority directories..."))
+			fmt.Println(textformat.Info("Creating certificate authority directories..."))
 
 			for _, folder := range []string{"certs", "csr", "db", "private"} {
 				if err := filesystem.EnsureDirectoryExist(folder); err != nil {
@@ -84,7 +84,7 @@ func NewCommand() *cobra.Command {
 				}
 			}
 
-			fmt.Println(color.Info("Initalizing certificate authority..."))
+			fmt.Println(textformat.Info("Initalizing certificate authority..."))
 
 			if s, _ := cmd.Flags().GetBool("subordinate"); s {
 				var err error
@@ -155,7 +155,7 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 
-			fmt.Println(color.Info("Generating the certificate authority private key..."))
+			fmt.Println(textformat.Info("Generating the certificate authority private key..."))
 
 			pass, err := shared.AskPrivateKeyPassword()
 			if err != nil {
@@ -168,7 +168,7 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 
-			fmt.Println(color.Info("Generating the certificate authority request..."))
+			fmt.Println(textformat.Info("Generating the certificate authority request..."))
 
 			if err := execute.ExternalProgram("openssl", []string{
 				"req",
@@ -185,7 +185,7 @@ func NewCommand() *cobra.Command {
 			var serial string
 
 			if settings.Type == "root" {
-				fmt.Println(color.Info("Generating the certificate for this root authority..."))
+				fmt.Println(textformat.Info("Generating the certificate for this root authority..."))
 
 				if err := execute.ExternalProgram("openssl", []string{
 					"ca",
@@ -218,7 +218,7 @@ func NewCommand() *cobra.Command {
 					return err
 				}
 
-				fmt.Println(color.Info("Importing subordinate authority into root authority..."))
+				fmt.Println(textformat.Info("Importing subordinate authority into root authority..."))
 
 				_, serial, err := shared.ImportSubordinate(fmt.Sprintf("%s/csr/ca.csr", settings.Name), "")
 				if err != nil {
@@ -236,13 +236,13 @@ func NewCommand() *cobra.Command {
 					return err
 				}
 
-				fmt.Println(color.Info("Writing updated root authority configuration file..."))
+				fmt.Println(textformat.Info("Writing updated root authority configuration file..."))
 
 				if err := shared.SaveSettings(&rootAuth); err != nil {
 					return err
 				}
 
-				fmt.Println(color.Info("Writing subordinate authority chain certificate..."))
+				fmt.Println(textformat.Info("Writing subordinate authority chain certificate..."))
 
 				root, err := os.ReadFile("./certs/ca.pem")
 				if err != nil {
@@ -264,7 +264,7 @@ func NewCommand() *cobra.Command {
 					return err
 				}
 
-				fmt.Println(color.Info("Writing subordinate authority configuration file..."))
+				fmt.Println(textformat.Info("Writing subordinate authority configuration file..."))
 
 				if err := shared.SaveSubordinateSettings(settings.Name, settings); err != nil {
 					return err
@@ -290,7 +290,7 @@ func NewCommand() *cobra.Command {
 			switch settings.Type {
 			case "root":
 				if s, _ := cmd.Flags().GetBool("scm"); s {
-					fmt.Println(color.Info("Adding source control supporting files..."))
+					fmt.Println(textformat.Info("Adding source control supporting files..."))
 					if err := git_ignore(); err != nil {
 						return err
 					}
@@ -304,7 +304,7 @@ func NewCommand() *cobra.Command {
 					}
 				}
 
-				fmt.Println(color.Info(`Creation of a root certificate authority complete...
+				fmt.Println(textformat.Info(`Creation of a root certificate authority complete...
 
 ~~~~~
 A root certificate authority should only have subordinate authorities and not
@@ -312,7 +312,7 @@ used to create server or user certificates so you should create at least one
 subordinate certificate authority to sign certificates within this authority...`))
 
 			case "subordinate":
-				fmt.Println(color.Info(`Creation of a subordinate certificate authority complete...
+				fmt.Println(textformat.Info(`Creation of a subordinate certificate authority complete...
 
 ~~~~~
 This subordinate authority can only be used to sign certificates within this authority...`))

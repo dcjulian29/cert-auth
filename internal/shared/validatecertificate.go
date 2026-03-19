@@ -21,9 +21,9 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
+	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
 func ValidateCertificate(path string, bundle bool) error {
@@ -40,7 +40,7 @@ func ValidateCertificate(path string, bundle bool) error {
 	if bundle {
 		ca = filepath.Join("certs", "ca-bundle.pem")
 
-		fmt.Println(color.Warn("Downloading Mozilla's ca-bundle.pem..."))
+		fmt.Println(textformat.Warn("Downloading Mozilla's ca-bundle.pem..."))
 
 		resp, err := http.Get("https://curl.se/ca/cacert.pem")
 		if err != nil {

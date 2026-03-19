@@ -18,8 +18,8 @@ package shared
 import (
 	"fmt"
 
-	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
+	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
 func SignRequest(id, pass string, days int) error {
@@ -27,7 +27,7 @@ func SignRequest(id, pass string, days int) error {
 		pass, _ = AskPrivateKeyPassword()
 	}
 
-	fmt.Println(color.Info("Signing request and generating a certificate..."))
+	fmt.Println(textformat.Info("Signing request and generating a certificate..."))
 
 	return execute.ExternalProgram("openssl", []string{
 		"ca",

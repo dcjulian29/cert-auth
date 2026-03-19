@@ -21,13 +21,13 @@ import (
 	"path/filepath"
 
 	"github.com/dcjulian29/cert-auth/internal/shared"
-	"github.com/dcjulian29/go-toolbox/color"
 	"github.com/dcjulian29/go-toolbox/execute"
 	"github.com/dcjulian29/go-toolbox/filesystem"
+	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
 func publish_files(authority shared.Authority, dest string) error {
-	fmt.Println(color.Info(fmt.Sprintf("Authority '%s' is valid. Proceeding to publish...", authority.Name)))
+	fmt.Println(textformat.Info(fmt.Sprintf("Authority '%s' is valid. Proceeding to publish...", authority.Name)))
 
 	if authority.Type != "root" {
 		if err := os.Chdir(authority.Name); err != nil {
@@ -35,7 +35,7 @@ func publish_files(authority shared.Authority, dest string) error {
 		}
 	}
 
-	fmt.Println(color.Info(fmt.Sprintf(">>>---------------- '%s' Certificate Authority", authority.Name)))
+	fmt.Println(textformat.Info(fmt.Sprintf(">>>---------------- '%s' Certificate Authority", authority.Name)))
 
 	if authority.Type == "imported" {
 		fmt.Printf("\033[1;36mThis is an imported authority.\033[0m\n")

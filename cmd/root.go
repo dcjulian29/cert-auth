@@ -30,7 +30,7 @@ import (
 	"github.com/dcjulian29/cert-auth/cmd/settings"
 	"github.com/dcjulian29/cert-auth/cmd/timestamp"
 	"github.com/dcjulian29/cert-auth/cmd/update"
-	"github.com/dcjulian29/go-toolbox/color"
+	"github.com/dcjulian29/go-toolbox/textformat"
 	"github.com/spf13/cobra"
 	"go.szostok.io/version/extension"
 )
@@ -51,7 +51,7 @@ func Execute() {
 	)
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, "\n"+color.Fatal(err.Error()))
+		fmt.Fprintln(os.Stderr, "\n"+textformat.Fatal(err.Error()))
 		os.Exit(1)
 	}
 }
