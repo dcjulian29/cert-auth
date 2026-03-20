@@ -85,23 +85,7 @@ func SaveSubordinateSettings(name string, subordinate Authority) error {
 		return errors.New("subordinate configuration file already exists")
 	}
 
-	fmt.Println("Create File")
-	file, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-
-	defer file.Close() //nolint
-
-	fmt.Println("Write File")
-	if _, err = file.Write(yaml); err != nil {
-		return err
-	}
-	fmt.Println("Done")
-
-	return nil
-
-	//	return filesystem.EnsureFileExist(filePath, yaml)
+	return filesystem.EnsureFileExist(filePath, yaml)
 }
 
 func load() (*Authority, error) {

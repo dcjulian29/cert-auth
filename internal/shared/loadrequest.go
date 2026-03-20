@@ -40,36 +40,36 @@ func LoadRequest(filePath string) (CertificateRequest, error) {
 		return CertificateRequest{}, err
 	}
 
-	regex_version, err := regexp.Compile(`Version:\s(\d+)\s`)
+	regexVersion, err := regexp.Compile(`Version:\s(\d+)\s`)
 	if err != nil {
 		return CertificateRequest{}, err
 	}
 
-	regex_subject, err := regexp.Compile(`Subject:\s(.+)`)
+	regexSubject, err := regexp.Compile(`Subject:\s(.+)`)
 	if err != nil {
 		return CertificateRequest{}, err
 	}
 
-	regex_pub, err := regexp.Compile(`Public Key Algorithm:\s(\w+)`)
+	regexPublicKey, err := regexp.Compile(`Public Key Algorithm:\s(\w+)`)
 	if err != nil {
 		return CertificateRequest{}, err
 	}
 
-	regex_sig, err := regexp.Compile(`Signature Algorithm:\s(\w+)`)
+	regexSignature, err := regexp.Compile(`Signature Algorithm:\s(\w+)`)
 	if err != nil {
 		return CertificateRequest{}, err
 	}
 
-	regex_valid, err := regexp.Compile("self-signature verify OK")
+	regexValid, err := regexp.Compile("self-signature verify OK")
 	if err != nil {
 		return CertificateRequest{}, err
 	}
 
-	request.Version, _ = strconv.Atoi(regex_version.FindStringSubmatch(text)[1])
-	request.Subject = strings.Trim(strings.ReplaceAll(regex_subject.FindStringSubmatch(text)[1], " ", ""), "\r\n")
-	request.PublicKeyAlgorithm = regex_pub.FindStringSubmatch(text)[1]
-	request.SignatureAlgorithm = regex_sig.FindStringSubmatch(text)[1]
-	request.SignatureValid = len(regex_valid.FindString(text)) > 0
+	request.Version, _ = strconv.Atoi(regexVersion.FindStringSubmatch(text)[1])
+	request.Subject = strings.Trim(strings.ReplaceAll(regexSubject.FindStringSubmatch(text)[1], " ", ""), "\r\n")
+	request.PublicKeyAlgorithm = regexPublicKey.FindStringSubmatch(text)[1]
+	request.SignatureAlgorithm = regexSignature.FindStringSubmatch(text)[1]
+	request.SignatureValid = len(regexValid.FindString(text)) > 0
 
 	parts := strings.Split(request.Subject, "=")
 	request.Name = parts[len(parts)-1]

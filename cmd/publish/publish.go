@@ -39,7 +39,7 @@ func NewCommand() *cobra.Command {
 
 			dest, err := filepath.Abs(relativePath)
 			if err != nil {
-				return fmt.Errorf("error getting absolute destination path: %v\n", err)
+				return fmt.Errorf("error getting absolute destination path: %v", err)
 			}
 
 			if filesystem.DirectoryExists(dest) {
