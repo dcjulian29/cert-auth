@@ -60,7 +60,7 @@ func publish_files(authority shared.Authority, dest string) error {
 			"x509",
 			"-outform der",
 			"-in certs/ca.pem",
-			fmt.Sprintf("-out %s/%s.crt", dest, authority.Name),
+			fmt.Sprintf("-out %s.crt", filepath.Join(dest, authority.Name)),
 		}...); err != nil {
 			return err
 		}
@@ -70,7 +70,7 @@ func publish_files(authority shared.Authority, dest string) error {
 		if err := execute.ExternalProgram("openssl", []string{
 			"crl",
 			"-in ca.crl",
-			fmt.Sprintf("-out %s/%s.crl", dest, authority.CommonName),
+			fmt.Sprintf("-out %s.crl", filepath.Join(dest, authority.Name)),
 			"-outform der",
 		}...); err != nil {
 			return err
@@ -82,7 +82,7 @@ func publish_files(authority shared.Authority, dest string) error {
 			"x509",
 			"-outform der",
 			"-in certs/ocsp.pem",
-			fmt.Sprintf("-out %s/%s-ocsp.crt", dest, authority.CommonName),
+			fmt.Sprintf("-out %s-ocsp.crt", filepath.Join(dest, authority.CommonName)),
 		}...); err != nil {
 			return err
 		}
@@ -93,7 +93,7 @@ func publish_files(authority shared.Authority, dest string) error {
 			"x509",
 			"-outform der",
 			"-in certs/ocsp.pem",
-			fmt.Sprintf("-out %s/%s-timestamp.crt", dest, authority.CommonName),
+			fmt.Sprintf("-out %s-timestamp.crt", filepath.Join(dest, authority.CommonName)),
 		}...); err != nil {
 			return err
 		}

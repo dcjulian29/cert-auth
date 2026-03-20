@@ -35,7 +35,12 @@ func NewCommand() *cobra.Command {
 			return shared.IsRootCertificateAuthority()
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dest, _ := cmd.Flags().GetString("destination")
+			relativePath, _ := cmd.Flags().GetString("destination")
+
+			dest, err := filepath.Abs(relativePath)
+			if err != nil {
+				return fmt.Errorf("error getting absolute destination path: %v\n", err)
+			}
 
 			if filesystem.DirectoryExists(dest) {
 				files, err := os.ReadDir(dest)
@@ -80,7 +85,7 @@ func NewCommand() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if err := publish_files(authority, filepath.Join("..", dest)); err != nil {
+				if err := publish_files(*authority, dest); err != nil {
 					return err
 				}
 			}
