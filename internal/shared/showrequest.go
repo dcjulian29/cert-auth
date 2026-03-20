@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"encoding/json"
@@ -24,6 +25,12 @@ import (
 	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
+// ShowRequest displays certificate signing request (CSR) information from the
+// current authority. If id is non-empty, the corresponding CSR file is located
+// at "csr/<id>.csr" and its full text representation is printed to stdout via
+// OpenSSL, including signature verification. Returns an error if the CSR file
+// does not exist, the OpenSSL command fails, any individual request cannot
+// be loaded, or the JSON marshalling fails.
 func ShowRequest(id string) error {
 	if len(id) > 0 {
 		csrFile := filepath.Join("csr", fmt.Sprintf("%s.csr", id))

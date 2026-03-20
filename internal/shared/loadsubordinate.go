@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"errors"
@@ -25,16 +26,22 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// LoadSubordinate loads and returns the Authority configuration for the named
+// subordinate CA. It first verifies that the named subordinate is registered
+// with the current authority via SubordinateExists, then reads and unmarshals
+// the ca.yml file from the subordinate's subdirectory. Returns an error if the
+// subordinate is not registered, its directory does not exist, the ca.yml file
+// is missing or unreadable, or the YAML cannot be unmarshalled.
 func LoadSubordinate(name string) (*Authority, error) {
 	cfg := &Authority{}
 
 	exist, err := SubordinateExists(name)
 	if err != nil {
 		return cfg, err
-	} else {
-		if !exist {
-			return cfg, fmt.Errorf("'%s' is not a subordinate of this authority", name)
-		}
+	}
+
+	if !exist {
+		return cfg, fmt.Errorf("'%s' is not a subordinate of this authority", name)
 	}
 
 	if filesystem.DirectoryExists(name) {

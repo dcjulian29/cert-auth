@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
@@ -22,6 +23,11 @@ import (
 	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
+// UpdateCRL regenerates the certificate revocation list (CRL) for the current
+// authority using the OpenSSL ca -gencrl command and writes it to "ca.crl",
+// using the ca.cnf configuration. If password is empty, the user is prompted
+// interactively for the CA private key password. Returns an error if the
+// password prompt fails or the OpenSSL command fails.
 func UpdateCRL(password string) error {
 	if len(password) == 0 {
 		password, _ = AskPrivateKeyPassword()

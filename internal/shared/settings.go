@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"errors"
@@ -33,6 +34,9 @@ var (
 	once     sync.Once
 )
 
+// GetSettings loads and returns the Authority configuration from the ca.yml file
+// in the current working directory. The settings are loaded once and cached for
+// subsequent calls. Returns an error if the file cannot be read or parsed.
 func GetSettings() (Authority, error) {
 	once.Do(func() {
 		instance, loadErr = load()
@@ -48,6 +52,9 @@ func GetSettings() (Authority, error) {
 	return *instance, loadErr
 }
 
+// SaveSettings persists the provided Authority configuration to the ca.yml file
+// in the current working directory and updates the cached instance. Returns an
+// error if authority is nil or if the file cannot be written.
 func SaveSettings(authority *Authority) error {
 	if authority == nil {
 		return errors.New("can not save settings with an uninitialized authority")
@@ -65,7 +72,12 @@ func SaveSettings(authority *Authority) error {
 	return nil
 }
 
-func SaveSubordinateSettings(name string, subordinate Authority) error {
+// SaveSubordinateSettings writes the given subordinate Authority configuration
+// as a ca.yml file under a subdirectory named after the subordinate. If the
+// subordinate name matches the current directory name, it writes ca.yml directly
+// into the current directory. Returns an error if the file already exists or
+// if marshalling the YAML fails.
+func SaveSubordinateSettings(subordinate Authority) error {
 	yaml, err := yaml.Marshal(subordinate)
 	if err != nil {
 		return err

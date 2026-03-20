@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,14 +15,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"crypto/rand"
 	"encoding/hex"
 )
 
-func RandomId(length int) (string, error) {
+// RandomID generates a cryptographically random hex-encoded string by reading
+// the specified number of random bytes from crypto/rand and encoding them as
+// hexadecimal. The returned string will be twice the length of the requested
+// byte count (e.g. a length of 15 produces a 30-character hex string). Returns
+// an error if the random byte generation fails.
+func RandomID(length int) (string, error) {
 	bytes := make([]byte, length)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err

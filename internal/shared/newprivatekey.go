@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"errors"
@@ -23,6 +24,9 @@ import (
 	"github.com/dcjulian29/go-toolbox/execute"
 )
 
+// NewPrivateKey generates a new encrypted private key at filePath using the
+// specified keyType algorithm. If pass is empty the operator is interactively
+// prompted for a passphrase via AskPassword.
 func NewPrivateKey(filePath string, keyType KeyType, pass string) error {
 	var (
 		keyPass string

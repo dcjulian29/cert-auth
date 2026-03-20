@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
@@ -26,6 +27,13 @@ import (
 	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
+// ValidateCertificate verifies a certificate at the given path against a CA
+// chain file using OpenSSL. The certificate file must exist. If bundle is
+// false, the CA file used is "certs/ca-chain.pem" if it exists, falling back
+// to "certs/ca.pem". If bundle is true, Mozilla's root CA bundle is downloaded
+// from https://curl.se/ca/cacert.pem, saved to "certs/ca-bundle.pem", and used
+// as the CA file. Returns an error if the certificate file does not exist, the
+// CA bundle download or write fails, or the OpenSSL verify command fails.
 func ValidateCertificate(path string, bundle bool) error {
 	if !filesystem.FileExists(path) {
 		return fmt.Errorf("'%s' does not exists or is not accessable", path)

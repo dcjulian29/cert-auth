@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
@@ -22,6 +23,13 @@ import (
 	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
+// ImportRequest validates and imports a certificate signing request (CSR) from
+// the given filePath into the authority's csr/ directory. The file must exist
+// and contain a CSR with a valid self-signature. On success, the CSR is copied
+// into the csr/ directory with a randomly generated 15-character ID as its
+// filename (e.g. "csr/a3f9c2d1b8e2f4a.csr") and that ID is returned. Returns
+// an error if the file does not exist, cannot be parsed, has an invalid
+// signature, or cannot be copied.
 func ImportRequest(filePath string) (string, error) {
 	if !filesystem.FileExists(filePath) {
 		return "", fmt.Errorf("'%s' doesn't exist or is not accessable", filePath)
@@ -36,7 +44,7 @@ func ImportRequest(filePath string) (string, error) {
 		return "", fmt.Errorf("'%s' is not a valid certificate request", filePath)
 	}
 
-	id, _ := RandomId(8)
+	id, _ := RandomID(15)
 	csrName := filepath.Join("csr", fmt.Sprintf("%s.csr", id))
 
 	if err := filesystem.CopyFile(filePath, csrName); err != nil {

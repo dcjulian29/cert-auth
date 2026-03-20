@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
@@ -23,6 +24,12 @@ import (
 	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
+// RevokeCertificate revokes the X.509 certificate at the given file path using
+// OpenSSL with the ca.cnf configuration and the specified revocation reason.
+// It prompts the user interactively for the CA private key password. After
+// successful revocation, the certificate file is renamed with a ".revoked"
+// suffix. Returns an error if the file does not exist, the password prompt
+// fails, or the OpenSSL command fails.
 func RevokeCertificate(filePath string, reason RevokeType) error {
 	if !filesystem.FileExists(filePath) {
 		return fmt.Errorf("certificate '%s' was not found", filePath)

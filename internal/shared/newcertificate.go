@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,15 +15,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
 	"path/filepath"
 )
 
+// NewCertificate creates a new certificate end-to-end by generating a private
+// key, a certificate signing request (CSR), and a signed certificate, all
+// identified by a randomly generated 15-character ID. The process is:
+//
+//  1. Generate a 15-character random ID.
+//  2. Prompt the user for a pass phrase for the new private key (stored at
+//     "private/<id>.key").
+//  3. Generate a new private key of DefaultKeyType at the key path.
+//  4. Generate a CSR at "csr/<id>.csr" using the key and the provided
+//     RequestData.
+//  5. Sign the CSR via ApproveCertificate using the certificate type from
+//     RequestData and the given validity period in days.
+//
+// Returns the generated ID on success, or an error if any step fails.
 func NewCertificate(data RequestData, days int) (string, error) {
-	id, err := RandomId(8)
+	id, err := RandomID(15)
 	if err != nil {
 		return "", err
 	}

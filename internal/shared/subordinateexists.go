@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,8 +15,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
+// SubordinateExists reports whether a subordinate CA with the given name is
+// registered with the current root certificate authority. It first verifies
+// that the current directory is a certificate authority and specifically a root
+// authority, then searches the authority's Subordinates list for a matching
+// name. Returns false and an error if the current directory is not a
+// certificate authority, is not a root authority, or the settings cannot be
+// loaded. Returns true and nil if a matching subordinate is found, or false
+// and nil if it is not.
 func SubordinateExists(name string) (bool, error) {
 	if err := IsCertificateAuthority(); err != nil {
 		return false, err

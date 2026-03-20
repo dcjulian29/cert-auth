@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
@@ -22,6 +23,13 @@ import (
 	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
+// SignRequest signs the CSR identified by id using the CA configured in
+// ca.cnf and writes the resulting certificate to "certs/<id>.pem". The CSR is
+// read from "csr/<id>.csr". The subca_ext extensions are applied and the
+// certificate is valid for the given number of days. If pass is empty, the
+// user is prompted interactively for the CA private key password. The OpenSSL
+// ca command is run in batch (non-interactive) mode. Returns an error if the
+// password prompt fails or the OpenSSL command fails.
 func SignRequest(id, pass string, days int) error {
 	if len(pass) == 0 {
 		pass, _ = AskPrivateKeyPassword()

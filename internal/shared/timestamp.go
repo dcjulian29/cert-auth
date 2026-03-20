@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"bytes"
@@ -27,9 +28,19 @@ import (
 	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
+// EnableTimestamp initialises timestamp authority (TSA) support for the current
+// certificate authority. It generates a timestamp.cnf configuration file
+// populated with the authority's country, organisation, and common name
+// (suffixed with "Timestamp Authority"), then creates a new timestamp private
+// key, certificate signing request, and TSA certificate signed by the CA. If
+// password is empty, the user is prompted interactively for the CA private key
+// password. Returns an error if timestamping is already enabled
+// (timestamp.cnf exists), the settings cannot be loaded, the password prompt
+// fails, the configuration file cannot be written, or any key/certificate
+// generation step fails.
 func EnableTimestamp(password string) error {
 	if filesystem.FileExists("timestamp.cnf") {
-		return errors.New("OCSP is already enabled in this authority")
+		return errors.New("Timestamping is already enabled in this authority")
 	}
 
 	settings, err := GetSettings()
@@ -77,6 +88,14 @@ func EnableTimestamp(password string) error {
 	return newTimestampCert(password)
 }
 
+// ReplaceTimestamp replaces the existing timestamp authority (TSA) certificate
+// and private key with newly generated ones. The current certificate
+// ("cert/timestamp.pem") and private key ("private/timestamp.key") are removed
+// before a new key, CSR, and certificate are generated. Unlike ReplaceOCSP, the
+// old certificate is not formally revoked via OpenSSL before removal. Returns
+// an error if timestamp is not enabled in the authority settings, the timestamp
+// certificate is missing, the CA private key password prompt fails, or any
+// removal or generation step fails.
 func ReplaceTimestamp() error {
 	settings, err := GetSettings()
 	if err != nil {

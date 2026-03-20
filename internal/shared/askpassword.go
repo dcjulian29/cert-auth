@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
@@ -23,6 +24,10 @@ import (
 	"golang.org/x/term"
 )
 
+// AskPassword prompts the user to enter a pass phrase for the file at the given
+// filePath, resolved relative to the current working directory. Input is read
+// securely without echo using the terminal raw mode. Returns the entered
+// password as a string, or an error if reading fails.
 func AskPassword(filePath string) (string, error) {
 	pwd, _ := os.Getwd()
 	filePath = filepath.Join(pwd, filePath)
@@ -33,7 +38,7 @@ func AskPassword(filePath string) (string, error) {
 	fmt.Println()
 
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return string(p), nil

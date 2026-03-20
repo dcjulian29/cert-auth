@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,14 +15,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
 )
 
+// AddSubordinate appends a new Subordinate with the given name and serial
+// to the authority's Subordinates list. If a subordinate with the same name
+// already exists, it returns nil and an error. Returns the updated slice of
+// Subordinates on success.
 func AddSubordinate(authority Authority, name, serial string) ([]Subordinate, error) {
-	subordinate := Subordinate{Name: name, Id: serial}
+	subordinate := Subordinate{Name: name, ID: serial}
 	n := []Subordinate{}
 	found := false
 

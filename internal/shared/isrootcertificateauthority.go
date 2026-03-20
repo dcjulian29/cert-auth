@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,12 +15,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"errors"
 )
 
+// IsRootCertificateAuthority checks whether the current working directory is a
+// root certificate authority. It first verifies the presence of a ca.yml file
+// via IsCertificateAuthority, then loads the authority settings and checks that
+// the authority type is RootAuthority. Returns an error if the directory is not
+// a certificate authority, the settings cannot be loaded, or the authority type
+// is not RootAuthority.
 func IsRootCertificateAuthority() error {
 	if err := IsCertificateAuthority(); err != nil {
 		return err

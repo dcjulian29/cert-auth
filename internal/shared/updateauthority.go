@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
@@ -22,6 +23,11 @@ import (
 	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
+// UpdateAuthority updates the certificate authority database by running the
+// OpenSSL ca -updatedb command using the ca.cnf configuration. This marks any
+// expired certificates in the database as expired. If password is empty, the
+// user is prompted interactively for the CA private key password. Returns an
+// error if the password prompt fails or the OpenSSL command fails.
 func UpdateAuthority(password string) error {
 	if len(password) == 0 {
 		pass, err := AskPrivateKeyPassword()

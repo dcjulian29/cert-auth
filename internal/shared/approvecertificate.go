@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
@@ -22,6 +23,16 @@ import (
 	"github.com/dcjulian29/go-toolbox/execute"
 )
 
+// ApproveCertificate signs a pending certificate signing request (CSR)
+// using the local certificate authority configuration. It locates the
+// CSR file at csr/<id>.csr, prompts the operator for the CA private key
+// password, and invokes OpenSSL in batch mode with the appropriate
+// extensions for the given certType ("server" or "client") and the
+// requested validity period in days.
+//
+// The CA configuration is read from ca.cnf in the current working
+// directory. The corresponding OpenSSL extension section used is
+// "<certType>_ext".
 func ApproveCertificate(id string, certType CertificateType, days int) error {
 	csrName := filepath.Join("csr", fmt.Sprintf("%s.csr", id))
 	pass, err := AskPrivateKeyPassword()

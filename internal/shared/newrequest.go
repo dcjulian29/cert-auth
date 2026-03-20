@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"bytes"
@@ -24,6 +25,9 @@ import (
 	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
+// NewRequest creates an OpenSSL CSR configuration file (<requestFile>.cnf) and
+// then generates the corresponding certificate signing request (<requestFile>.csr)
+// for the given RequestData.
 func NewRequest(requestFile, keyFile, pass string, data RequestData) error {
 	settings, err := GetSettings()
 	if err != nil {
@@ -58,7 +62,7 @@ func NewRequest(requestFile, keyFile, pass string, data RequestData) error {
 	if data.RequestType == CertificateTypeServer {
 		contents.WriteString("req_extensions = server_req\n\n")
 
-		contents.Write(cnf_san(data.Name, data.AdditionalNames))
+		contents.Write(SubjectAlternativeName(data.Name, data.AdditionalNames))
 	}
 
 	if data.RequestType == CertificateTypeClient {

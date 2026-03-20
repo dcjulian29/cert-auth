@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,13 +15,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"bytes"
 	"fmt"
 )
 
+// RequestSubject builds the [req_subj] section of an OpenSSL configuration
+// file from the given RequestData and returns it as a byte slice. The country
+// and organization are always included. State, locality, and organizational
+// unit are only written when their respective fields are non-empty. The common
+// name is always written last using the Name field.
 func RequestSubject(data RequestData) []byte {
 	var contents bytes.Buffer
 

@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"fmt"
@@ -24,6 +25,20 @@ import (
 	"github.com/dcjulian29/go-toolbox/execute"
 )
 
+// LoadRequest parses a PEM-encoded certificate signing request (CSR) at the
+// given filePath using OpenSSL and returns a CertificateRequest populated with
+// the extracted fields. The following fields are extracted from the OpenSSL text
+// output via regular expressions:
+//
+//   - Version: the PKCS#10 version number.
+//   - Subject: the distinguished name (DN), with whitespace trimmed.
+//   - PublicKeyAlgorithm: the public key algorithm, e.g. "rsaEncryption" or "id-ecPublicKey".
+//   - SignatureAlgorithm: the signature algorithm, e.g. "ecdsa-with-SHA256".
+//   - SignatureValid: true if OpenSSL reports "self-signature verify OK".
+//   - Name: the value of the last RDN component of the subject (e.g. the CN value).
+//
+// Returns an empty CertificateRequest and an error if OpenSSL fails, any regex
+// fails to compile, or the expected fields are not found in the output.
 func LoadRequest(filePath string) (CertificateRequest, error) {
 	var request CertificateRequest
 	filePath = strings.ReplaceAll(filePath, "\\", "/")

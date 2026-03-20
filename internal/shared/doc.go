@@ -1,3 +1,7 @@
+// Package shared provides common utility functions and types used across the cert-auth
+// command-line application for managing a certificate authority. It wraps OpenSSL
+// operations to create, sign, and revoke X.509 certificates, manage private keys,
+// load certificate databases, and handle interactive password prompts.
 package shared
 
 /*
@@ -15,15 +19,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
-import (
-	"path/filepath"
-)
-
-// AskPrivateKeyPassword prompts the user for the password of the CA's private
-// key file located at "private/ca.key". It delegates to AskPassword with the
-// constructed file path. Returns the entered password or an error if the prompt
-// fails.
-func AskPrivateKeyPassword() (string, error) {
-	return AskPassword(filepath.Join("private", "ca.key"))
-}

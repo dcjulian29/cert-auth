@@ -1,3 +1,5 @@
+package shared
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package shared
 
 import (
 	"bytes"
@@ -27,6 +28,14 @@ import (
 	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
+// EnableOCSP initializes OCSP support for the current certificate authority.
+// It generates an ocsp.cnf configuration file populated with the authority's
+// country, organization, and common name, then creates a new OCSP private key,
+// certificate signing request, and OCSP certificate signed by the CA. If
+// password is empty, the user is prompted interactively for the CA private key
+// password. Returns an error if OCSP is already enabled (ocsp.cnf exists), the
+// settings cannot be loaded, the password prompt fails, the configuration file
+// cannot be written, or any key/certificate generation step fails.
 func EnableOCSP(password string) error {
 	if filesystem.FileExists("ocsp.cnf") {
 		return errors.New("OCSP is already enabled in this authority")
@@ -77,6 +86,15 @@ func EnableOCSP(password string) error {
 	return newOcspCert(password)
 }
 
+// ReplaceOCSP revokes the existing OCSP responder certificate and issues a new
+// one. The revocation reason must be either Superseded or KeyCompromise; any
+// other reason is rejected. The current OCSP certificate ("cert/ocsp.pem") and
+// private key ("private/ocsp.key") are removed after revocation, the CRL is
+// updated, and a new OCSP key, CSR, and certificate are generated. Returns an
+// error if OCSP is not enabled in the authority settings, the reason is not
+// permitted, the OCSP certificate is missing, the CA private key password
+// prompt fails, or any revocation, removal, CRL update, or generation step
+// fails.
 func ReplaceOCSP(reason RevokeType) error {
 	settings, err := GetSettings()
 	if err != nil {
