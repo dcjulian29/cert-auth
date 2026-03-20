@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package certificate
 
 import (
@@ -20,14 +21,39 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// requestCmd returns a cobra.Command that creates or imports a certificate
+// request within the current certificate authority. The command verifies that
+// the current directory is a certificate authority before running. The
+// --server flag creates a new server certificate request, --client creates a
+// new client certificate request, and --import imports an existing CSR from
+// the path specified by --path. If no flag is provided, the help text is
+// displayed. Certificate subject fields default to the authority's own country
+// and organization settings. Returns an error if the authority check fails or
+// the request creation or import operation fails.
+//
+// Flags:
+//
+//	    --server      create a new server certificate request
+//	    --client      create a new client certificate request
+//	    --import      import a certificate request
+//	    --path        path to the certificate request file to import
+//	-n, --name        fully qualified name for the certificate (required with --server/--client)
+//	    --country     country of the organization
+//	    --state       state or province name
+//	    --locality    city or town name
+//	    --ou          organizational unit name
+//	    --org         organization name
+//	    --san         additional subject alternative names
+//	    --days        days for the certificate to be valid (default: 365)
+//	    --keytype     algorithm to use for the private key: edwards, elliptic, rsa
 func requestCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "request",
 		Short: "Create or import a certificate request",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			return shared.IsCertificateAuthority()
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			days, _ := cmd.Flags().GetInt("days")
 			name, _ := cmd.Flags().GetString("name")
 			country, _ := cmd.Flags().GetString("country")
@@ -74,7 +100,7 @@ func requestCmd() *cobra.Command {
 	cmd.Flags().Bool("client", false, "Create a new client certificate request")
 	cmd.Flags().Bool("server", false, "Create a new server certificate request")
 	cmd.Flags().Bool("import", false, "Import a certificate request")
-	cmd.Flags().String("path", "", "path to certificate to revoke")
+	cmd.Flags().String("path", "", "path to certificate request file to import")
 
 	settings, _ := shared.GetSettings()
 

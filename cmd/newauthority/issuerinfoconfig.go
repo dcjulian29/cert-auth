@@ -13,18 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
 	"bytes"
 )
 
-func cnf_ocsp_info() []byte {
+func issuerInfoConfig() []byte {
 	var contents bytes.Buffer
 
 	contents.WriteString("\n[issuer_info]\n")
 	contents.WriteString("caIssuers;URI.0         = $aia_url\n")
-	contents.WriteString("OCSP;URI.0              = $ocsp_url\n")
 
 	return contents.Bytes()
 }

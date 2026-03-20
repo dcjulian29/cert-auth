@@ -13,28 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
 	"bytes"
 )
 
-func ext_client() []byte {
+func ocspExtension() []byte {
 	var contents bytes.Buffer
 
-	contents.WriteString("\n[client_ext]\n")
+	contents.WriteString("\n[ocsp_ext]\n")
 	contents.WriteString("authorityInfoAccess     = @issuer_info\n")
-	contents.WriteString("authorityKeyIdentifier  = keyid:always, issuer:always\n")
+	contents.WriteString("authorityKeyIdentifier  = keyid,issuer\n")
 	contents.WriteString("basicConstraints        = critical,CA:false\n")
-	contents.WriteString("crlDistributionPoints   = @crl_info\n")
-	contents.WriteString("extendedKeyUsage        = clientAuth,codeSigning,emailProtection\n")
+	contents.WriteString("extendedKeyUsage        = critical,OCSPSigning\n")
 	contents.WriteString("keyUsage                = critical,digitalSignature\n")
-
-	if !settings.Public {
-		contents.WriteString("nameConstraints         = @name_constraints\n")
-	}
-
-	contents.WriteString("subjectAltName          = email:move\n")
+	contents.WriteString("noCheck                 = critical, null")
 	contents.WriteString("subjectKeyIdentifier    = hash\n")
 
 	return contents.Bytes()

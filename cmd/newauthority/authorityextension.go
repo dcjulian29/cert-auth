@@ -13,27 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
 	"bytes"
-
-	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
-func git_attributes() error {
+func authorityExtension() []byte {
 	var contents bytes.Buffer
 
-	contents.WriteString("*       text eol=lf\n")
-	contents.WriteString("*.cer   binary\n")
-	contents.WriteString("*.csr   text\n")
-	contents.WriteString("*.crl   text\n")
-	contents.WriteString("*.crt   binary\n")
-	contents.WriteString("*.der   binary\n")
-	contents.WriteString("*.pem   text\n")
-	contents.WriteString("*.p12   binary\n")
-	contents.WriteString("*.pfx   binary\n")
-	contents.WriteString("*.key   text\n")
+	contents.WriteString("\n[ca_ext]\n")
+	contents.WriteString("basicConstraints        = critical,CA:true\n")
+	contents.WriteString("keyUsage                = critical,keyCertSign,cRLSign\n")
+	contents.WriteString("subjectKeyIdentifier    = hash\n")
 
-	return filesystem.EnsureFileExist(".gitattributes", contents.Bytes())
+	return contents.Bytes()
 }

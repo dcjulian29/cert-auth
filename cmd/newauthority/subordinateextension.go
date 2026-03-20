@@ -13,28 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
 	"bytes"
 )
 
-func ext_server() []byte {
+func subordinateExtension() []byte {
 	var contents bytes.Buffer
 
-	contents.WriteString("\n[server_ext]\n")
+	contents.WriteString("\n[subca_ext]\n")
 	contents.WriteString("authorityInfoAccess     = @issuer_info\n")
-	contents.WriteString("authorityKeyIdentifier  = keyid:always, issuer:always\n")
-	contents.WriteString("basicConstraints        = critical,CA:false\n")
+	contents.WriteString("authorityKeyIdentifier  = keyid:always\n")
+	contents.WriteString("basicConstraints        = critical,CA:true,pathlen:0\n")
 	contents.WriteString("crlDistributionPoints   = @crl_info\n")
 	contents.WriteString("extendedKeyUsage        = clientAuth,serverAuth\n")
-	contents.WriteString("keyUsage                = critical,digitalSignature,keyEncipherment\n")
+	contents.WriteString("keyUsage                = critical,keyCertSign,cRLSign\n")
+	contents.WriteString("subjectKeyIdentifier    = hash\n")
 
 	if !settings.Public {
 		contents.WriteString("nameConstraints         = @name_constraints\n")
 	}
-
-	contents.WriteString("subjectKeyIdentifier    = hash\n")
 
 	return contents.Bytes()
 }

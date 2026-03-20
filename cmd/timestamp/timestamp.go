@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package timestamp provides the CLI command for managing the Timestamp
+// Authority (TSA) certificate within a certificate authority.
 package timestamp
 
 import (
@@ -22,14 +25,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewCommand returns a cobra.Command that manages the Timestamp Authority (TSA)
+// certificate within the current root certificate authority. The command
+// verifies that the current directory is a root certificate authority before
+// running. If timestamping is enabled in the authority settings, it displays
+// the current timestamp certificate via ShowCertificate. If the --replace flag
+// is provided, the existing timestamp certificate is replaced with a new one
+// via ReplaceTimestamp before displaying it. Returns an error if the settings
+// cannot be loaded or timestamping is not enabled.
+//
+// Flags:
+//
+//	--replace    replace the Timestamp certificate with a new one
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "timestamp",
 		Short: "Manage Timestamp certificate within this authority.",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			return shared.IsRootCertificateAuthority()
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			settings, err := shared.GetSettings()
 			if err != nil {
 				return err
@@ -43,9 +58,9 @@ func NewCommand() *cobra.Command {
 				}
 
 				return shared.ShowCertificate("timestamp", false)
-			} else {
-				return errors.New("OCSP is not enabled in this certificate authority")
 			}
+
+			return errors.New("Timestamping is not enabled in this certificate authority")
 		},
 	}
 

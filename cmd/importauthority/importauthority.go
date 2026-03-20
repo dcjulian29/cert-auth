@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package importauthority provides the CLI command for importing and signing
+// an external subordinate certificate authority from a CSR file.
 package importauthority
 
 import (
@@ -26,11 +29,28 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewCommand returns a cobra.Command that imports and signs an external
+// subordinate certificate authority from a CSR file. The command verifies that
+// the current directory is a root certificate authority before running. The CSR
+// file path defaults to "csr/<name>.csr" if --request is not provided. Once
+// signed, a subdirectory named after the subordinate is created containing the
+// authority settings, the original CSR, the signed certificate, and a
+// certificate chain file combining the root and subordinate CA certificates.
+// The imported authority is recorded with type "imported" and placeholder
+// values for domain, country, and organization; the common name is taken from
+// the CSR. Returns an error if the CSR file does not exist, the import or
+// signing step fails, the authority settings cannot be saved, or any directory
+// or file operation fails.
+//
+// Flags:
+//
+//	-n, --name       name for the subordinate authority (required)
+//	-r, --request    path to the CSR file for the subordinate authority
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "import",
 		Short: "Import and sign a subordinate authority.",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			if err := shared.IsCertificateAuthority(); err != nil {
 				return err
 			}
@@ -48,7 +68,7 @@ func NewCommand() *cobra.Command {
 
 			return nil
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			file, _ := cmd.Flags().GetString("request")
 			name, _ := cmd.Flags().GetString("name")
 
@@ -85,7 +105,7 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 
-			if err := shared.SaveSubordinateSettings(id, authority); err != nil {
+			if err := shared.SaveSubordinateSettings(authority); err != nil {
 				return err
 			}
 

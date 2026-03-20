@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
@@ -21,18 +22,19 @@ import (
 	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
-func editor_config() error {
+func gitAttributes() error {
 	var contents bytes.Buffer
 
-	contents.WriteString("root = true\n\n")
-	contents.WriteString("[*]\n")
-	contents.WriteString("end_of_line = lf\n")
-	contents.WriteString("indent_style = space\n")
-	contents.WriteString("indent_size = 2\n")
-	contents.WriteString("trim_trailing_whitespace = true\n")
-	contents.WriteString("insert_final_newline = true\n\n")
-	contents.WriteString("[{*.pem,*.crl,*.csr,*.key}]\n")
-	contents.WriteString("insert_final_newline = false\n")
+	contents.WriteString("*       text eol=lf\n")
+	contents.WriteString("*.cer   binary\n")
+	contents.WriteString("*.csr   text\n")
+	contents.WriteString("*.crl   text\n")
+	contents.WriteString("*.crt   binary\n")
+	contents.WriteString("*.der   binary\n")
+	contents.WriteString("*.pem   text\n")
+	contents.WriteString("*.p12   binary\n")
+	contents.WriteString("*.pfx   binary\n")
+	contents.WriteString("*.key   text\n")
 
-	return filesystem.EnsureFileExist(".editorconfig", contents.Bytes())
+	return filesystem.EnsureFileExist(".gitattributes", contents.Bytes())
 }

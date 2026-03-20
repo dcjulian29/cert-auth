@@ -1,3 +1,9 @@
+// Package cmd implements the command-line interface for cert-auth using Cobra.
+// It defines the root command and registers all subcommands for managing
+// a certificate authority, including initialization, certificate issuance,
+// revocation, and subordinate CA management.
+package cmd
+
 /*
 Copyright © 2026 Julian Easterling
 
@@ -13,7 +19,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package cmd
 
 import (
 	"fmt"
@@ -43,6 +48,9 @@ var rootCmd = &cobra.Command{
 	SilenceUsage:  true,
 }
 
+// Execute adds the version command (with upgrade notice) to the root command
+// and runs the CLI. If the root command returns an error, it is printed to
+// stderr as a fatal-formatted message and the process exits with code 1.
 func Execute() {
 	rootCmd.AddCommand(
 		extension.NewVersionCobraCmd(

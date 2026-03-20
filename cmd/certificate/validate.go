@@ -13,21 +13,33 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package certificate
 
 import (
 	"errors"
 
-
 	"github.com/dcjulian29/cert-auth/internal/shared"
 	"github.com/spf13/cobra"
 )
 
+// validateCmd returns a cobra.Command that validates the signature of a
+// certificate file against the current authority's CA chain. The command
+// verifies that the current directory is a certificate authority before
+// running. The path to the certificate file must be provided as a positional
+// argument. If the --bundle flag is provided, Mozilla's root CA bundle is
+// downloaded and used as the trust store instead of the local CA chain. Returns
+// an error if no file path is provided, the certificate cannot be validated, or
+// the CA bundle download fails.
+//
+// Flags:
+//
+//	--bundle    use Mozilla CA certificate store to validate
 func validateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "validate <filePath>",
 		Short: "Validate the signature of a certificate",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			return shared.IsCertificateAuthority()
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -13,17 +13,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
 	"bytes"
 )
 
-func cnf_crl_info() []byte {
+func defaultConfig() []byte {
 	var contents bytes.Buffer
 
-	contents.WriteString("\n[crl_info]\n")
-	contents.WriteString("URI.0                   = $crl_url\n")
+	contents.WriteString("aia_url                 = http://pki.$domain_suffix/$name.crt\n")
+	contents.WriteString("crl_url                 = http://pki.$domain_suffix/$name.crl\n")
+
+	if settings.OCSP {
+		contents.WriteString("ocsp_url                =  http://ocsp-$name.$domain_suffix\n")
+	}
+
+	contents.WriteString("default_ca              = ca_default\n")
+	contents.WriteString("name_opt                = utf8,esc_ctrl,multiline,lname,align\n")
 
 	return contents.Bytes()
 }

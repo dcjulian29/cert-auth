@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package publish
 
 import (
@@ -21,7 +22,7 @@ import (
 	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
-func mime_types(filePath string) error {
+func mimeTypes(filePath string) error {
 	var contents bytes.Buffer
 
 	contents.WriteString("application/pkcs7-mime              .p7c\n")

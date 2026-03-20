@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package publish
 
 import (
@@ -26,7 +27,7 @@ import (
 	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
-func publish_files(authority shared.Authority, dest string) error {
+func publishFiles(authority shared.Authority, dest string) error {
 	fmt.Println(textformat.Info(fmt.Sprintf("Authority '%s' is valid. Proceeding to publish...", authority.Name)))
 
 	if authority.Type != "root" {

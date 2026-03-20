@@ -13,19 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
 	"bytes"
 )
 
-func ext_ca() []byte {
+func crlInfoConfig() []byte {
 	var contents bytes.Buffer
 
-	contents.WriteString("\n[ca_ext]\n")
-	contents.WriteString("basicConstraints        = critical,CA:true\n")
-	contents.WriteString("keyUsage                = critical,keyCertSign,cRLSign\n")
-	contents.WriteString("subjectKeyIdentifier    = hash\n")
+	contents.WriteString("\n[crl_info]\n")
+	contents.WriteString("URI.0                   = $crl_url\n")
 
 	return contents.Bytes()
 }

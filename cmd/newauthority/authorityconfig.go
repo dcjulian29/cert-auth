@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
@@ -22,21 +23,21 @@ import (
 	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
-func cnf_ca() error {
+func authorityConfig() error {
 	var contents bytes.Buffer
 
 	contents.WriteString("[default]\n")
 	fmt.Fprintf(&contents, "name                    = %s\n", settings.Name)
 	fmt.Fprintf(&contents, "domain_suffix           = %s\n", settings.Domain)
 
-	contents.Write(cnf_default())
+	contents.Write(defaultConfig())
 
 	contents.WriteString("\n[ca_dn]\n")
 	fmt.Fprintf(&contents, "countryName             = %s\n", settings.Country)
 	fmt.Fprintf(&contents, "organizationName        = %s\n", settings.Organization)
 	fmt.Fprintf(&contents, "commonName              = %s\n", settings.CommonName)
 
-	contents.Write(cnf_default_ca())
+	contents.Write(defaultAuthorityConfig())
 
 	if settings.Type == "subordinate" {
 		contents.WriteString("copy_extensions         = copy\n")
@@ -49,19 +50,19 @@ func cnf_ca() error {
 	}
 
 	if !settings.Public {
-		contents.Write(cnf_policy())
+		contents.Write(policyConfig())
 	}
 
-	contents.Write(cnf_crl_info())
+	contents.Write(crlInfoConfig())
 
 	if settings.OCSP {
-		contents.Write(cnf_ocsp_info())
+		contents.Write(ocspInfoConfig())
 	} else {
-		contents.Write(cnf_issuer_info())
+		contents.Write(issuerInfoConfig())
 	}
 
 	if !settings.Public {
-		contents.Write(cnf_name_constraints())
+		contents.Write(nameConstraintsConfig())
 	}
 
 	contents.WriteString("\n[req]\n")
@@ -73,21 +74,21 @@ func cnf_ca() error {
 	contents.WriteString("distinguished_name      = ca_dn\n")
 	contents.WriteString("req_extensions          = ca_ext\n")
 
-	contents.Write(ext_ca())
+	contents.Write(authorityExtension())
 
 	if settings.OCSP {
-		contents.Write(ext_ocsp())
+		contents.Write(ocspExtension())
 	}
 
 	if settings.TimeStamp {
-		contents.Write(ext_timestamp())
+		contents.Write(timestampExtension())
 	}
 
 	if settings.Type == "subordinate" {
-		contents.Write(ext_server())
-		contents.Write(ext_client())
+		contents.Write(serverExtension())
+		contents.Write(clientExtension())
 	} else {
-		contents.Write(ext_subca())
+		contents.Write(subordinateExtension())
 	}
 
 	return filesystem.EnsureFileExist("ca.cnf", contents.Bytes())

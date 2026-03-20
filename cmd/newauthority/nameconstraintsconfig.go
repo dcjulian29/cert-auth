@@ -13,27 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
 	"bytes"
 )
 
-func ext_subca() []byte {
+func nameConstraintsConfig() []byte {
 	var contents bytes.Buffer
 
-	contents.WriteString("\n[subca_ext]\n")
-	contents.WriteString("authorityInfoAccess     = @issuer_info\n")
-	contents.WriteString("authorityKeyIdentifier  = keyid:always\n")
-	contents.WriteString("basicConstraints        = critical,CA:true,pathlen:0\n")
-	contents.WriteString("crlDistributionPoints   = @crl_info\n")
-	contents.WriteString("extendedKeyUsage        = clientAuth,serverAuth\n")
-	contents.WriteString("keyUsage                = critical,keyCertSign,cRLSign\n")
-	contents.WriteString("subjectKeyIdentifier    = hash\n")
-
-	if !settings.Public {
-		contents.WriteString("nameConstraints         = @name_constraints\n")
-	}
+	contents.WriteString("\n[name_constraints]\n")
+	contents.WriteString("permitted;DNS.0         = $domain_suffix\n")
+	contents.WriteString("excluded;IP.0           = 0.0.0.0/0.0.0.0\n")
+	contents.WriteString("excluded;IP.1           = 0:0:0:0:0:0:0:0/0:0:0:0:0:0:0:0\n")
 
 	return contents.Bytes()
 }

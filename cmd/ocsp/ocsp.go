@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package ocsp provides CLI commands for managing the OCSP responder and OCSP
+// certificate within a certificate authority.
 package ocsp
 
 import (
@@ -22,16 +25,32 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// revokeReason is the package-level revocation reason used when replacing the
+// OCSP certificate, defaulting to Unspecified.
 var revokeReason shared.RevokeType = shared.Unspecified
 
+// NewCommand returns a cobra.Command that manages the OCSP certificate and
+// responder for the current root certificate authority. The command verifies
+// that the current directory is a root certificate authority before running.
+// If OCSP is enabled in the authority settings, it displays the current OCSP
+// certificate via ShowCertificate. If the --replace flag is provided, the
+// existing OCSP certificate is replaced with a new one via ReplaceOCSP using
+// the specified revocation reason before displaying it. The server subcommand
+// is registered for managing the OCSP responder process. Returns an error if
+// the settings cannot be loaded or OCSP is not enabled.
+//
+// Flags:
+//
+//	    --replace    replace the OCSP certificate with a new one
+//	-r, --reason     reason for replacement (default: unspecified)
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "ocsp",
 		Short: "Manage OCSP within this authority.",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			return shared.IsRootCertificateAuthority()
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			settings, err := shared.GetSettings()
 			if err != nil {
 				return err
@@ -45,9 +64,9 @@ func NewCommand() *cobra.Command {
 				}
 
 				return shared.ShowCertificate("ocsp", false)
-			} else {
-				return errors.New("OCSP is not enabled in this certificate authority")
 			}
+
+			return errors.New("OCSP is not enabled in this certificate authority")
 		},
 	}
 

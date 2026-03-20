@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package remove provides the CLI command for removing a revoked subordinate
+// certificate authority from a root certificate authority.
 package remove
 
 import (
@@ -25,11 +28,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewCommand returns a cobra.Command that removes the directory of a revoked
+// subordinate certificate authority. The command verifies that the current
+// directory is a root certificate authority before running. The named
+// subordinate must have already been revoked (ID marked as "~REVOKED~") before
+// its directory can be removed. Returns an error if the subordinate has already
+// been removed, has not yet been revoked, or is not registered with this
+// authority.
+//
+// Flags:
+//
+//	-n, --name    name of the subordinate authority to remove (required)
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove",
 		Short: "Remove subordinate authority files.",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			if err := shared.IsCertificateAuthority(); err != nil {
 				return err
 			}
@@ -45,7 +59,7 @@ func NewCommand() *cobra.Command {
 
 			return nil
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			name, _ := cmd.Flags().GetString("name")
 			settings, err := shared.GetSettings()
 			if err != nil {
@@ -54,7 +68,7 @@ func NewCommand() *cobra.Command {
 
 			for _, s := range settings.Subordinates {
 				if s.Name == name {
-					if s.Id == "~REVOKED~" {
+					if s.ID == "~REVOKED~" {
 						if !filesystem.DirectoryExists(name) {
 							return fmt.Errorf("'%s' authority has already been removed", name)
 						}

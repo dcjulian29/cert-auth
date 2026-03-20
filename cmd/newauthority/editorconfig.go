@@ -13,19 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
 	"bytes"
+
+	"github.com/dcjulian29/go-toolbox/filesystem"
 )
 
-func cnf_name_constraints() []byte {
+func editorConfig() error {
 	var contents bytes.Buffer
 
-	contents.WriteString("\n[name_constraints]\n")
-	contents.WriteString("permitted;DNS.0         = $domain_suffix\n")
-	contents.WriteString("excluded;IP.0           = 0.0.0.0/0.0.0.0\n")
-	contents.WriteString("excluded;IP.1           = 0:0:0:0:0:0:0:0/0:0:0:0:0:0:0:0\n")
+	contents.WriteString("root = true\n\n")
+	contents.WriteString("[*]\n")
+	contents.WriteString("end_of_line = lf\n")
+	contents.WriteString("indent_style = space\n")
+	contents.WriteString("indent_size = 2\n")
+	contents.WriteString("trim_trailing_whitespace = true\n")
+	contents.WriteString("insert_final_newline = true\n\n")
+	contents.WriteString("[{*.pem,*.crl,*.csr,*.key}]\n")
+	contents.WriteString("insert_final_newline = false\n")
 
-	return contents.Bytes()
+	return filesystem.EnsureFileExist(".editorconfig", contents.Bytes())
 }

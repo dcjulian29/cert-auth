@@ -13,22 +13,46 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package certificate provides CLI commands for managing certificates within
+// a certificate authority, including issuance, requests, revocation, and
+// validation.
 package certificate
 
 import (
-
 	"github.com/dcjulian29/cert-auth/internal/shared"
 	"github.com/spf13/cobra"
 )
 
+// certificateKeyType is the cryptographic algorithm used when generating a new
+// certificate's private key.
 var certificateKeyType shared.KeyType
 
+// NewCommand returns a cobra.Command that manages certificates within the
+// current certificate authority. The command accepts an optional certificate ID
+// argument and verifies that the current directory is a certificate authority
+// before running. With no flag, the help text is displayed. The --issued flag
+// displays issued certificates, --requests displays pending certificate
+// requests, and --revoked displays revoked certificates; these three flags are
+// mutually exclusive. The following subcommands are registered:
+//
+//   - approve    approve a pending certificate request
+//   - new        create a new certificate
+//   - request    create a new certificate request
+//   - revoke     revoke an issued certificate
+//   - validate   validate a certificate
+//
+// Flags:
+//
+//	--issued      show issued certificate(s)
+//	--requests    show certificate request(s)
+//	--revoked     show revoked certificate(s)
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "certificate [id]",
 		Aliases: []string{"cert"},
 		Short:   "Manage certificates within this authority",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			return shared.IsCertificateAuthority()
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

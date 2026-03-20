@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package settings provides the CLI command for displaying the configuration
+// settings of a certificate authority.
 package settings
 
 import (
@@ -20,20 +23,32 @@ import (
 	"fmt"
 	"reflect"
 
-
 	"github.com/dcjulian29/cert-auth/internal/shared"
 	"github.com/spf13/cobra"
 )
 
+// NewCommand returns a cobra.Command that displays the settings of the current
+// certificate authority. The command verifies that the current directory is a
+// certificate authority before running and accepts an optional key argument.
+// If no key is provided, all settings are printed to stdout as indented JSON.
+// If a key is provided, the value of the matching field is printed using
+// reflection; the key must exactly match the exported field name of the
+// Authority settings struct. Returns an error if the current directory is not
+// a certificate authority, the settings cannot be loaded, or the provided key
+// does not match any settings field.
+//
+// Usage:
+//
+//	settings [<key>]
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "settings [<key>]",
 		Args:  cobra.MaximumNArgs(1),
 		Short: "Show setting(s) of the certificate authority",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			return shared.IsCertificateAuthority()
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			key := ""
 
 			if len(args) > 0 {

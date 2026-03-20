@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package ocsp provides CLI commands for managing the OCSP responder for a
+// certificate authority.
 package ocsp
 
 import (
@@ -36,7 +39,7 @@ func stop() error {
 			"--force",
 			name,
 		}...)
-	} else {
-		return fmt.Errorf("'%s' OCSP responder is not running", settings.Name)
 	}
+
+	return fmt.Errorf("'%s' OCSP responder is not running", settings.Name)
 }

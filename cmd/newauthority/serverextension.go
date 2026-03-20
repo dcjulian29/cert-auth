@@ -13,22 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package newauthority
 
 import (
 	"bytes"
 )
 
-func ext_timestamp() []byte {
+func serverExtension() []byte {
 	var contents bytes.Buffer
 
-	contents.WriteString("\n[timestamp_ext]\n")
+	contents.WriteString("\n[server_ext]\n")
 	contents.WriteString("authorityInfoAccess     = @issuer_info\n")
-	contents.WriteString("authorityKeyIdentifier  = keyid, issuer\n")
-	contents.WriteString("basicConstraints        = critical, CA:false\n")
+	contents.WriteString("authorityKeyIdentifier  = keyid:always, issuer:always\n")
+	contents.WriteString("basicConstraints        = critical,CA:false\n")
 	contents.WriteString("crlDistributionPoints   = @crl_info\n")
-	contents.WriteString("extendedKeyUsage        = critical,timeStamping\n")
-	contents.WriteString("keyUsage                = critical,digitalSignature\n")
+	contents.WriteString("extendedKeyUsage        = clientAuth,serverAuth\n")
+	contents.WriteString("keyUsage                = critical,digitalSignature,keyEncipherment\n")
+
+	if !settings.Public {
+		contents.WriteString("nameConstraints         = @name_constraints\n")
+	}
+
 	contents.WriteString("subjectKeyIdentifier    = hash\n")
 
 	return contents.Bytes()

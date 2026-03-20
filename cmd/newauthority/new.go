@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package newauthority provides the CLI command for creating new root and
+// subordinate certificate authorities.
 package newauthority
 
 import (
@@ -30,29 +33,71 @@ import (
 )
 
 var (
-	strictPolicy   bool
-	keyPass        string
+	// strictPolicy enforces that certificate requests must match both the
+	// organization and country of the authority.
+	strictPolicy bool
+
+	// keyPass holds the CA private key password collected interactively during
+	// authority creation.
+	keyPass string
+
+	// privateKeyType is the cryptographic algorithm used when generating the CA
+	// private key, defaulting to Elliptic (EC secp521r1).
 	privateKeyType shared.KeyType = shared.Elliptic
-	rootAuth       shared.Authority
-	settings       shared.Authority
+
+	// rootAuth holds the settings of the root certificate authority when
+	// creating a subordinate authority.
+	rootAuth shared.Authority
+
+	// settings holds the settings for the authority being created.
+	settings shared.Authority
 )
 
+// NewCommand returns a cobra.Command that creates a new root or subordinate
+// certificate authority. For a root authority, the command verifies that the
+// current directory is not already an authority. For a subordinate authority,
+// it verifies that the current directory is a root certificate authority. The
+// command initializes the authority directory structure (certs, csr, db,
+// private), generates a serial number, creates ca.cnf, generates a private
+// key and CSR, then either self-signs the root CA certificate or imports the
+// subordinate CSR into the root authority, builds the certificate chain, and
+// registers the subordinate in the root's settings. If OCSP or timestamping
+// are enabled, their respective certificates are generated immediately after
+// creation. For root authorities, optional SCM support files (.gitignore,
+// .gitattributes, .editorconfig) can also be generated. Returns an error if
+// any directory, file, OpenSSL, or settings operation fails.
+//
+// Flags:
+//
+//	    --root           create a new root certificate authority (default: true)
+//	    --subordinate    create a new subordinate certificate authority
+//	    --cn             common name for the authority
+//	-c, --country        country where the authority resides legally (default: US)
+//	-d, --domain         domain serviced by the authority (default: contoso.local)
+//	-n, --name           name of the authority
+//	-o, --ocsp           enable OCSP in this authority
+//	    --org            organization name serviced by the authority (default: Contoso)
+//	-t, --timestamp      enable timestamping in this authority
+//	-p, --public         enable this authority for third-party certificates
+//	-s, --strict         match both organization and country in certificate requests
+//	    --scm            include generation of SCM support files (root only)
+//	    --keytype        algorithm to use for the private key: edwards, elliptic, rsa
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "new",
 		Short: "Create a new certificate authority.",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(cmd *cobra.Command, _ []string) error {
 			if s, _ := cmd.Flags().GetBool("subordinate"); s {
 				return shared.IsRootCertificateAuthority()
-			} else {
-				if err := shared.IsCertificateAuthority(); err == nil {
-					return errors.New("this is already a certificate authority")
-				}
+			}
+
+			if err := shared.IsCertificateAuthority(); err == nil {
+				return errors.New("this is already a certificate authority")
 			}
 
 			return nil
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			pwd, _ := os.Getwd()
 
 			if s, _ := cmd.Flags().GetBool("subordinate"); s {
@@ -64,16 +109,17 @@ func NewCommand() *cobra.Command {
 
 				if filesystem.FileExists(filepath.Join(pwd, name, "ca.yml")) {
 					return fmt.Errorf("'%s' is already a subordinate authority", name)
-				} else {
-					fmt.Println(textformat.Info("Creating new subordinate authority folder ..."))
-					if err := filesystem.EnsureDirectoryExist(name); err != nil {
-						return err
-					}
-
-					if err := os.Chdir(name); err != nil {
-						return err
-					}
 				}
+
+				fmt.Println(textformat.Info("Creating new subordinate authority folder ..."))
+				if err := filesystem.EnsureDirectoryExist(name); err != nil {
+					return err
+				}
+
+				if err := os.Chdir(name); err != nil {
+					return err
+				}
+
 			}
 
 			fmt.Println(textformat.Info("Creating certificate authority directories..."))
@@ -137,7 +183,7 @@ func NewCommand() *cobra.Command {
 			settings.OCSP, _ = cmd.Flags().GetBool("ocsp")
 			settings.TimeStamp, _ = cmd.Flags().GetBool("timestamp")
 
-			serialnum, _ := shared.RandomId(15)
+			serialnum, _ := shared.RandomID(15)
 
 			if err := filesystem.EnsureFileExist("db/index", []byte{}); err != nil {
 				return err
@@ -151,7 +197,7 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 
-			if err := cnf_ca(); err != nil {
+			if err := authorityConfig(); err != nil {
 				return err
 			}
 
@@ -160,9 +206,9 @@ func NewCommand() *cobra.Command {
 			pass, err := shared.AskPrivateKeyPassword()
 			if err != nil {
 				return err
-			} else {
-				keyPass = pass
 			}
+
+			keyPass = pass
 
 			if err := shared.NewPrivateKey("private/ca.key", privateKeyType, keyPass); err != nil {
 				return err
@@ -266,7 +312,7 @@ func NewCommand() *cobra.Command {
 
 				fmt.Println(textformat.Info("Writing subordinate authority configuration file..."))
 
-				if err := shared.SaveSubordinateSettings(settings.Name, settings); err != nil {
+				if err := shared.SaveSubordinateSettings(settings); err != nil {
 					return err
 				}
 			}
@@ -291,15 +337,15 @@ func NewCommand() *cobra.Command {
 			case "root":
 				if s, _ := cmd.Flags().GetBool("scm"); s {
 					fmt.Println(textformat.Info("Adding source control supporting files..."))
-					if err := git_ignore(); err != nil {
+					if err := gitIgnore(); err != nil {
 						return err
 					}
 
-					if err := git_attributes(); err != nil {
+					if err := gitAttributes(); err != nil {
 						return err
 					}
 
-					if err := editor_config(); err != nil {
+					if err := editorConfig(); err != nil {
 						return err
 					}
 				}

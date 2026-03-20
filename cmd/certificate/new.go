@@ -13,22 +13,46 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package certificate
 
 import (
-
 	"github.com/dcjulian29/cert-auth/internal/shared"
 	"github.com/spf13/cobra"
 )
 
+// newCmd returns a cobra.Command that creates a new certificate within the
+// current certificate authority in a single step, generating both the private
+// key and the signed certificate without a separate CSR workflow. The command
+// verifies that the current directory is a certificate authority before
+// running. The --server flag creates a new server certificate and --client
+// creates a new client certificate; these flags are mutually exclusive. If
+// neither flag is provided, the help text is displayed. Certificate subject
+// fields default to the authority's own country and organization settings.
+// Returns an error if the authority check fails or the certificate creation
+// fails.
+//
+// Flags:
+//
+//	    --server      create a new server certificate
+//	    --client      create a new client certificate
+//	-n, --name        fully qualified domain name of the server
+//	    --country     country of the organization
+//	    --state       state or province name
+//	    --locality    city or town name
+//	    --ou          organizational unit name
+//	    --org         organization name
+//	    --san         additional subject alternative names
+//	    --days        days for the certificate to be valid (default: 365)
+//	    --keytype     algorithm to use for the private key: edwards, elliptic, rsa
 func newCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "new",
 		Short: "Create a new certificate",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			return shared.IsCertificateAuthority()
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			days, _ := cmd.Flags().GetInt("days")
 			name, _ := cmd.Flags().GetString("name")
 			country, _ := cmd.Flags().GetString("country")

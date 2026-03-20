@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package publish provides the CLI command for publishing certificate authority
+// files in a format suitable for deployment to a web server.
 package publish
 
 import (
@@ -27,14 +30,31 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewCommand returns a cobra.Command that publishes the current root
+// certificate authority's files to a destination directory suitable for web
+// deployment. The command verifies that the current directory is a root
+// certificate authority before running. The destination is resolved to an
+// absolute path; if it already contains files, the --force flag must be
+// provided to remove them before publishing. A mime.types file is written to
+// the destination, followed by the root authority's files and the files for
+// each registered subordinate authority. Each subordinate is validated via
+// ValidateSubordinate before its files are published. Returns an error if the
+// destination path cannot be resolved, the directory cannot be created or
+// cleared, any file publishing step fails, or a subordinate cannot be
+// validated or loaded.
+//
+// Flags:
+//
+//	    --destination    directory to publish to (default: .publish)
+//	-f, --force          overwrite existing published files
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "publish",
 		Short: "Publish the certificate authority files suitable for deployment to web",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			return shared.IsRootCertificateAuthority()
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			relativePath, _ := cmd.Flags().GetString("destination")
 
 			dest, err := filepath.Abs(relativePath)
@@ -63,7 +83,7 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 
-			if err := mime_types(filepath.Join(dest, "mime.types")); err != nil {
+			if err := mimeTypes(filepath.Join(dest, "mime.types")); err != nil {
 				return err
 			}
 
@@ -72,12 +92,12 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 
-			if err := publish_files(settings, dest); err != nil {
+			if err := publishFiles(settings, dest); err != nil {
 				return err
 			}
 
 			for _, s := range settings.Subordinates {
-				if err := shared.ValidateSubordinate(s.Id, s.Name); err != nil {
+				if err := shared.ValidateSubordinate(s.ID, s.Name); err != nil {
 					return err
 				}
 
@@ -85,7 +105,7 @@ func NewCommand() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if err := publish_files(*authority, dest); err != nil {
+				if err := publishFiles(*authority, dest); err != nil {
 					return err
 				}
 			}

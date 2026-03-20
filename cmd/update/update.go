@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package update provides the CLI command for updating the certificate
+// authority database files.
 package update
 
 import (
@@ -20,14 +23,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewCommand returns a cobra.Command that updates the certificate authority
+// database files by invoking UpdateAuthority. The command verifies that the
+// current directory is a certificate authority before running. The CA private
+// key password is collected interactively at runtime.
 func NewCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update",
 		Short: "Update the certificate authority database files.",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(_ *cobra.Command, _ []string) error {
 			return shared.IsCertificateAuthority()
 		},
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, _ []string) error {
 			return shared.UpdateAuthority("")
 		},
 	}
