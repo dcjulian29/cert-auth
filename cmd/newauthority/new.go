@@ -102,9 +102,9 @@ func NewCommand() *cobra.Command {
 
 			if !cmd.Flags().Lookup("name").Changed {
 				if s, _ := cmd.Flags().GetBool("subordinate"); s {
-					settings.Name = "subca"
+					settings.Name = "intermediate"
 				} else {
-					settings.Name = "rootca"
+					settings.Name = "root"
 				}
 			} else {
 				settings.Name, _ = cmd.Flags().GetString("name")
