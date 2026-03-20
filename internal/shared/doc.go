@@ -1,9 +1,3 @@
-// Package shared provides common utility functions and types used across the cert-auth
-// command-line application for managing a certificate authority. It wraps OpenSSL
-// operations to create, sign, and revoke X.509 certificates, manage private keys,
-// load certificate databases, and handle interactive password prompts.
-package shared
-
 /*
 Copyright © 2026 Julian Easterling
 
@@ -19,3 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package shared provides common utility functions and types used across the cert-auth
+// command-line application for managing a certificate authority. It wraps OpenSSL
+// operations to create, sign, and revoke X.509 certificates, manage private keys,
+// load certificate databases, and handle interactive password prompts.
+package shared

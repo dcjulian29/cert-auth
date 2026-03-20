@@ -1,5 +1,3 @@
-package shared
-
 /*
 Copyright © 2026 Julian Easterling
 
@@ -15,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+package shared
 
 // SubordinateExists reports whether a subordinate CA with the given name is
 // registered with the current root certificate authority. It first verifies

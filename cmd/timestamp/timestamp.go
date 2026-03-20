@@ -60,7 +60,7 @@ func NewCommand() *cobra.Command {
 				return shared.ShowCertificate("timestamp", false)
 			}
 
-			return errors.New("Timestamping is not enabled in this certificate authority")
+			return errors.New("timestamping is not enabled in this certificate authority")
 		},
 	}
 

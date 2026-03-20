@@ -1,5 +1,3 @@
-package shared
-
 /*
 Copyright © 2026 Julian Easterling
 
@@ -15,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+package shared
 
 // Authority represents the configuration and identity of a certificate authority.
 // It is serialized to and deserialized from a YAML configuration file (ca.yml)
