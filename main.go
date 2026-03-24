@@ -13,6 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// cert-auth is a command-line tool for managing a certificate authority,
+// including initialization, certificate issuance, revocation, and subordinate
+// certificate authority management.
 package main
 
 import "github.com/dcjulian29/cert-auth/cmd"

@@ -1,9 +1,3 @@
-// Package cmd implements the command-line interface for cert-auth using Cobra.
-// It defines the root command and registers all subcommands for managing
-// a certificate authority, including initialization, certificate issuance,
-// revocation, and subordinate CA management.
-package cmd
-
 /*
 Copyright © 2026 Julian Easterling
 
@@ -19,6 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package cmd implements the command-line interface for cert-auth using Cobra.
+// It defines the root command and registers all subcommands for managing
+// a certificate authority, including initialization, certificate issuance,
+// revocation, and subordinate CA management.
+package cmd
 
 import (
 	"fmt"
