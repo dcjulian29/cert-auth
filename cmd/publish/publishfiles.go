@@ -56,7 +56,7 @@ func publishFiles(authority shared.Authority, dest string) error {
 		}
 	}
 
-	if filesystem.FileExists(filepath.Join("certs", "ca.pem")) {
+	if filesystem.FileExist(filepath.Join("certs", "ca.pem")) {
 		if err := execute.ExternalProgram("openssl", []string{
 			"x509",
 			"-outform der",
@@ -67,7 +67,7 @@ func publishFiles(authority shared.Authority, dest string) error {
 		}
 	}
 
-	if filesystem.FileExists("ca.crl") {
+	if filesystem.FileExist("ca.crl") {
 		if err := execute.ExternalProgram("openssl", []string{
 			"crl",
 			"-in ca.crl",
@@ -78,7 +78,7 @@ func publishFiles(authority shared.Authority, dest string) error {
 		}
 	}
 
-	if filesystem.FileExists(filepath.Join("certs", "ocsp.pem")) {
+	if filesystem.FileExist(filepath.Join("certs", "ocsp.pem")) {
 		if err := execute.ExternalProgram("openssl", []string{
 			"x509",
 			"-outform der",
@@ -89,7 +89,7 @@ func publishFiles(authority shared.Authority, dest string) error {
 		}
 	}
 
-	if filesystem.FileExists(filepath.Join("certs", "timestamp.pem")) {
+	if filesystem.FileExist(filepath.Join("certs", "timestamp.pem")) {
 		if err := execute.ExternalProgram("openssl", []string{
 			"x509",
 			"-outform der",

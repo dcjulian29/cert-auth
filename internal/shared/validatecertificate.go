@@ -35,13 +35,13 @@ import (
 // as the CA file. Returns an error if the certificate file does not exist, the
 // CA bundle download or write fails, or the OpenSSL verify command fails.
 func ValidateCertificate(path string, bundle bool) error {
-	if !filesystem.FileExists(path) {
+	if !filesystem.FileExist(path) {
 		return fmt.Errorf("'%s' does not exists or is not accessable", path)
 	}
 
 	ca := filepath.Join("certs", "ca-chain.pem")
 
-	if !filesystem.FileExists(ca) {
+	if !filesystem.FileExist(ca) {
 		ca = filepath.Join("certs", "ca.pem")
 	}
 

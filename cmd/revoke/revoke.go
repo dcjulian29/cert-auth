@@ -77,7 +77,7 @@ func NewCommand() *cobra.Command {
 					}
 
 					cert := filepath.Join("certs", fmt.Sprintf("%s.pem", s.ID))
-					if filesystem.FileExists(cert) {
+					if filesystem.FileExist(cert) {
 						if err := execute.ExternalProgram("openssl", []string{
 							"ca",
 							"-config ca.cnf",

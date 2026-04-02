@@ -35,7 +35,7 @@ func ShowRequest(id string) error {
 	if len(id) > 0 {
 		csrFile := filepath.Join("csr", fmt.Sprintf("%s.csr", id))
 
-		if !filesystem.FileExists(csrFile) {
+		if !filesystem.FileExist(csrFile) {
 			return fmt.Errorf("request '%s' was not found", id)
 		}
 

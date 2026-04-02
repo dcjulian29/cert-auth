@@ -26,7 +26,7 @@ import (
 // a certificate authority by verifying the presence of a ca.yml configuration
 // file. Returns an error if the file does not exist.
 func IsCertificateAuthority() error {
-	if !filesystem.FileExists("ca.yml") {
+	if !filesystem.FileExist("ca.yml") {
 		return errors.New("this is not a certificate authority")
 	}
 

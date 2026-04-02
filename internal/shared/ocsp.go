@@ -37,7 +37,7 @@ import (
 // settings cannot be loaded, the password prompt fails, the configuration file
 // cannot be written, or any key/certificate generation step fails.
 func EnableOCSP(password string) error {
-	if filesystem.FileExists("ocsp.cnf") {
+	if filesystem.FileExist("ocsp.cnf") {
 		return errors.New("OCSP is already enabled in this authority")
 	}
 
@@ -112,7 +112,7 @@ func ReplaceOCSP(reason RevokeType) error {
 	filePath := filepath.Join("cert", "ocsp.pem")
 	keyPath := filepath.Join("private", "ocsp.key")
 
-	if !filesystem.FileExists(filePath) {
+	if !filesystem.FileExist(filePath) {
 		return errors.New("the OCSP certificate does not exist")
 	}
 
@@ -135,13 +135,13 @@ func ReplaceOCSP(reason RevokeType) error {
 
 	fmt.Println(textformat.Warn("Removing the current OCSP certificate and key..."))
 
-	if filesystem.FileExists(filePath) {
+	if filesystem.FileExist(filePath) {
 		if err := os.Remove(filePath); err != nil {
 			return err
 		}
 	}
 
-	if filesystem.FileExists(keyPath) {
+	if filesystem.FileExist(keyPath) {
 		if err := os.Remove(keyPath); err != nil {
 			return err
 		}

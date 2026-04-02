@@ -44,11 +44,11 @@ func LoadSubordinate(name string) (*Authority, error) {
 		return cfg, fmt.Errorf("'%s' is not a subordinate of this authority", name)
 	}
 
-	if filesystem.DirectoryExists(name) {
+	if filesystem.DirectoryExist(name) {
 		pwd, _ := os.Getwd()
 		filePath := filepath.Join(pwd, name, "ca.yml")
 
-		if !filesystem.FileExists(filePath) {
+		if !filesystem.FileExist(filePath) {
 			return cfg, errors.New("certification authority configuration not found")
 		}
 

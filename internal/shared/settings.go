@@ -93,7 +93,7 @@ func SaveSubordinateSettings(subordinate Authority) error {
 		filePath = filepath.Join(pwd, subordinate.Name, "ca.yml")
 	}
 
-	if filesystem.FileExists(filePath) {
+	if filesystem.FileExist(filePath) {
 		return errors.New("subordinate configuration file already exists")
 	}
 
@@ -106,7 +106,7 @@ func load() (*Authority, error) {
 
 	cfg := &Authority{}
 
-	if !filesystem.FileExists(filePath) {
+	if !filesystem.FileExist(filePath) {
 		return cfg, errors.New("certification authority configuration not found")
 	}
 
@@ -132,7 +132,7 @@ func save(authority *Authority) error {
 	pwd, _ := os.Getwd()
 	filePath := filepath.Join(pwd, "ca.yml")
 
-	if filesystem.FileExists(filePath) {
+	if filesystem.FileExist(filePath) {
 		if err := os.Remove(filePath); err != nil {
 			return err
 		}
