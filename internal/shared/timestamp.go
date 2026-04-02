@@ -28,9 +28,9 @@ import (
 	"github.com/dcjulian29/go-toolbox/textformat"
 )
 
-// EnableTimestamp initialises timestamp authority (TSA) support for the current
+// EnableTimestamp initializes timestamp authority (TSA) support for the current
 // certificate authority. It generates a timestamp.cnf configuration file
-// populated with the authority's country, organisation, and common name
+// populated with the authority's country, organization, and common name
 // (suffixed with "Timestamp Authority"), then creates a new timestamp private
 // key, certificate signing request, and TSA certificate signed by the CA. If
 // password is empty, the user is prompted interactively for the CA private key
@@ -39,7 +39,7 @@ import (
 // fails, the configuration file cannot be written, or any key/certificate
 // generation step fails.
 func EnableTimestamp(password string) error {
-	if filesystem.FileExists("timestamp.cnf") {
+	if filesystem.FileExist("timestamp.cnf") {
 		return errors.New("timestamping is already enabled in this authority")
 	}
 
@@ -109,7 +109,7 @@ func ReplaceTimestamp() error {
 	filePath := filepath.Join("cert", "timestamp.pem")
 	keyPath := filepath.Join("private", "timestamp.key")
 
-	if !filesystem.FileExists(filePath) {
+	if !filesystem.FileExist(filePath) {
 		return errors.New("the Timestamp certificate does not exist")
 	}
 
@@ -120,13 +120,13 @@ func ReplaceTimestamp() error {
 
 	fmt.Println(textformat.Warn("Removing the current Timestamp certificate and key..."))
 
-	if filesystem.FileExists(filePath) {
+	if filesystem.FileExist(filePath) {
 		if err := os.Remove(filePath); err != nil {
 			return err
 		}
 	}
 
-	if filesystem.FileExists(keyPath) {
+	if filesystem.FileExist(keyPath) {
 		if err := os.Remove(keyPath); err != nil {
 			return err
 		}

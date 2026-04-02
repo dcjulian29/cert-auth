@@ -31,7 +31,7 @@ import (
 // suffix. Returns an error if the file does not exist, the password prompt
 // fails, or the OpenSSL command fails.
 func RevokeCertificate(filePath string, reason RevokeType) error {
-	if !filesystem.FileExists(filePath) {
+	if !filesystem.FileExist(filePath) {
 		return fmt.Errorf("certificate '%s' was not found", filePath)
 	}
 

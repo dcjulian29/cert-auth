@@ -69,7 +69,7 @@ func NewCommand() *cobra.Command {
 			for _, s := range settings.Subordinates {
 				if s.Name == name {
 					if s.ID == "~REVOKED~" {
-						if !filesystem.DirectoryExists(name) {
+						if !filesystem.DirectoryExist(name) {
 							return fmt.Errorf("'%s' authority has already been removed", name)
 						}
 

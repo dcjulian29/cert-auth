@@ -107,7 +107,7 @@ func NewCommand() *cobra.Command {
 					name = "subca"
 				}
 
-				if filesystem.FileExists(filepath.Join(pwd, name, "ca.yml")) {
+				if filesystem.FileExist(filepath.Join(pwd, name, "ca.yml")) {
 					return fmt.Errorf("'%s' is already a subordinate authority", name)
 				}
 

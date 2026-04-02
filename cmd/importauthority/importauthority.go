@@ -76,7 +76,7 @@ func NewCommand() *cobra.Command {
 				file = filepath.Join("csr", fmt.Sprintf("%s.csr", name))
 			}
 
-			if !filesystem.FileExists(file) {
+			if !filesystem.FileExist(file) {
 				return fmt.Errorf("'%s' does not exist", file)
 			}
 

@@ -29,7 +29,7 @@ import (
 // subordinate's directory does not exist, the configuration cannot be loaded,
 // or the serial number does not match.
 func ValidateSubordinate(id string, name string) error {
-	if filesystem.DirectoryExists(name) {
+	if filesystem.DirectoryExist(name) {
 		s, err := LoadSubordinate(name)
 		if err != nil {
 			return err

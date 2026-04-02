@@ -41,7 +41,7 @@ func ShowCertificate(id string, revoked bool) error {
 			pemFile = fmt.Sprintf("%s.revoked", pemFile)
 		}
 
-		if !filesystem.FileExists(pemFile) {
+		if !filesystem.FileExist(pemFile) {
 			return fmt.Errorf("certificate '%s' was not found", id)
 		}
 

@@ -53,7 +53,7 @@ func NewCommand() *cobra.Command {
 				}
 			}
 
-			if filesystem.FileExists("ca.crl") {
+			if filesystem.FileExist("ca.crl") {
 				if err := execute.ExternalProgram("openssl", []string{
 					"crl",
 					fmt.Sprintf("-in %s", "ca.crl"),

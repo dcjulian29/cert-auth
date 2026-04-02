@@ -31,7 +31,7 @@ import (
 // an error if the file does not exist, cannot be parsed, has an invalid
 // signature, or cannot be copied.
 func ImportRequest(filePath string) (string, error) {
-	if !filesystem.FileExists(filePath) {
+	if !filesystem.FileExist(filePath) {
 		return "", fmt.Errorf("'%s' doesn't exist or is not accessable", filePath)
 	}
 
