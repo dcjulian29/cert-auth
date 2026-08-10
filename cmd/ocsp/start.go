@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	"github.com/dcjulian29/cert-auth/internal/shared"
-	"github.com/dcjulian29/go-toolbox/execute"
+	"github.com/dcjulian29/go-toolbox/docker"
 )
 
 func start(port int, background bool) error {
@@ -37,30 +37,30 @@ func start(port int, background bool) error {
 		return fmt.Errorf("'%s' OCSP responder is already running", settings.Name)
 	}
 
-	pwd, _ := os.Getwd()
-	detach := "-it"
-
-	if background {
-		detach = "--detach"
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
 	}
 
-	return execute.ExternalProgram("docker", []string{
-		"run",
-		"--rm",
-		detach,
-		"--name",
-		name,
-		"-p",
-		fmt.Sprintf("%d:8080/tcp", port),
-		"-v",
-		fmt.Sprintf("%s:/data", strings.ReplaceAll(pwd, "\\", "/")),
-		"dcjulian29/openssl:latest",
-		"ocsp",
-		"-port", "8080",
-		"-index", "db/index",
-		"-rsigner", "certs/ocsp.pem",
-		"-rkey", "private/ocsp.key",
-		"-CA", "certs/ca.pem",
-		"-text",
-	}...)
+	opts := docker.ContainerOptions{
+		AdditionalArgs: []string{
+			"-port", "8080",
+			"-index", "db/index",
+			"-rsigner", "certs/ocsp.pem",
+			"-rkey", "private/ocsp.key",
+			"-CA", "certs/ca.pem",
+			"-text",
+		},
+		Command:     "ocsp",
+		Image:       "dcjulian29/openssl",
+		Interactive: !background,
+		Name:        name,
+		Ports:       []string{fmt.Sprintf("%d:8080/tcp", port)},
+		Tag:         "latest",
+		Volumes:     []string{fmt.Sprintf("%s:/data", strings.ReplaceAll(pwd, "\\", "/"))},
+	}
+
+	_, err = docker.Run(opts)
+
+	return err
 }
